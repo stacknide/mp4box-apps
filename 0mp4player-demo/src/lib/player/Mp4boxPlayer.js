@@ -104,7 +104,28 @@ export class Mp4boxPlayer {
     }
   };
 
-  onSeeking = (e) => {
+  /* Video Event Listeners START */
+  addVideoEventListeners = () => {
+    this.video.addEventListener("seeking", this.onSeeking.bind(this));
+    this.video.addEventListener("playing", this.onPlaying.bind(this));
+  };
+
+  removeVideoEventListeners = () => {
+    this.video.removeEventListener("seeking", this.onSeeking);
+    this.video.removeEventListener("playing", this.onPlaying);
+  };
+
+  onPlaying = (e) => {
+    console.log("Playing event,");
+
+    this.video.playing = true;
+    if (this.video.onPlayCue) {
+      this.processInbandCue.call(this.video.onPlayCue);
+      this.video.onPlayCue = null;
+    }
+  };
+
+  onSeeking(e) {
     var i, start, end;
     var seek_info;
     if (this.video.lastSeekTime !== this.video.currentTime) {
@@ -123,6 +144,7 @@ export class Mp4boxPlayer {
       );
       this.downloader.stop();
       this.resetCues();
+
       seek_info = this.mp4boxfile.seek(this.video.currentTime, true);
       this.downloader.setChunkStart(seek_info.offset);
       this.downloader.resume();
@@ -130,7 +152,8 @@ export class Mp4boxPlayer {
       this.stopButton.disabled = false;
       this.video.lastSeekTime = this.video.currentTime;
     }
-  };
+  }
+  /* Video Event Listeners END */
 
   resetCues = () => {
     for (var i = 0; i < this.video.textTracks.length; i++) {
@@ -143,19 +166,10 @@ export class Mp4boxPlayer {
 
   onWindowLoad = () => {
     // TODO: If !video ...
-    this.video.addEventListener("seeking", this.onSeeking);
     this.video.addEventListener("error", function (e) {
       Log.error("Media Element error", e);
     });
     this.video.playing = false;
-    this.video.addEventListener("playing", (e) => {
-      console.log("Playing event,");
-      this.video.playing = true;
-      if (this.video.onPlayCue) {
-        this.processInbandCue.call(this.video.onPlayCue);
-        this.video.onPlayCue = null;
-      }
-    });
 
     /*	video.addEventListener("suspend", function(e) { 
           console.log("Suspend event,");
@@ -205,6 +219,7 @@ export class Mp4boxPlayer {
     this.downloader.reset();
     this.startButton.disabled = true;
     this.resetMediaSource();
+    this.removeVideoEventListeners();
     this.resetDisplay();
   };
 
@@ -276,6 +291,7 @@ export class Mp4boxPlayer {
     }
 
     this.mp4boxfile = createFile();
+    this.addVideoEventListeners();
     this.mp4boxfile.onMoovStart = () => {
       Log.info("Application", "Starting to parse movie information");
     };
@@ -474,7 +490,7 @@ export class Mp4boxPlayer {
       if (i === 0) {
         sb.ms.pendingInits = 0;
       }
-      sb.addEventListener("updateend", (e) => this.onInitAppended(e));
+      sb.addEventListener("updateend", this.onInitAppended.bind(this));
       Log.info("MSE - SourceBuffer #" + sb.id, "Appending initialization data");
       sb.appendBuffer(initSegs[i].buffer);
       this.saveBuffer(
@@ -490,13 +506,16 @@ export class Mp4boxPlayer {
   /* Load END */
 
   /* SB Append START */
-  onInitAppended = (e) => {
+  onInitAppended(e) {
     var sb = e.target;
     if (sb.ms.readyState === "open") {
       this.updateBufferedString(sb, "Init segment append ended");
       sb.sampleNum = 0;
       sb.removeEventListener("updateend", (e) => this.onInitAppended(e));
-      sb.addEventListener("updateend", () => this.onUpdateEnd(sb, true, true));
+      sb.addEventListener(
+        "updateend",
+        this.onUpdateEnd.bind(this, sb, true, true)
+      );
       /* In case there are already pending buffers we call onUpdateEnd to start appending them*/
       this.onUpdateEnd(sb, false, true);
       sb.ms.pendingInits--;
@@ -504,7 +523,7 @@ export class Mp4boxPlayer {
         this.start();
       }
     }
-  };
+  }
 
   start = () => {
     this.startButton.disabled = true;
@@ -516,7 +535,7 @@ export class Mp4boxPlayer {
     this.downloader.resume();
   };
 
-  onUpdateEnd = (sb, isNotInit, isEndOfAppend) => {
+  onUpdateEnd(sb, isNotInit, isEndOfAppend) {
     if (isEndOfAppend === true) {
       if (isNotInit === true) {
         this.updateBufferedString(sb, "Update ended");
@@ -543,7 +562,7 @@ export class Mp4boxPlayer {
       sb.is_last = obj.is_last;
       sb.appendBuffer(obj.buffer);
     }
-  };
+  }
 
   updateBufferedString = (sb, string) => {
     var rangeString;
