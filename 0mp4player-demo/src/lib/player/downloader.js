@@ -1,4 +1,6 @@
-function Downloader() {
+import { Log } from "../mp4box.all";
+
+export function Downloader() {
   this.isActive = false;
   this.realtime = false;
   this.chunkStart = 0;
@@ -102,7 +104,12 @@ Downloader.prototype.getFile = function () {
         xhr.status == 416) &&
       xhr.readyState == this.DONE
     ) {
-      var rangeReceived = xhr.getResponseHeader("Content-Range");
+      // var rangeReceived = xhr.getResponseHeader("Content-Range");
+      var start = xhr.start;
+      var end = xhr.start + xhr.response.byteLength - 1;
+      var totalLength = 28884979;
+      var rangeReceived = `bytes ${start}-${end}/${totalLength}`;
+
       Log.info("Downloader", "Received data range: " + rangeReceived);
       /* if the length of the file is not known, we get it from the response header */
       if (!dl.totalLength && rangeReceived) {
@@ -128,7 +135,8 @@ Downloader.prototype.getFile = function () {
         if (!dl.realtime) {
           timeoutDuration = dl.chunkTimeout;
         } else {
-          timeoutDuration = computeWaitingTimeFromBuffer(video);
+          // timeoutDuration = computeWaitingTimeFromBuffer(video); // TODO: miss
+          timeoutDuration = dl.chunkTimeout; // Temporary
         }
         if (dl.setDownloadTimeoutCallback)
           dl.setDownloadTimeoutCallback(timeoutDuration);

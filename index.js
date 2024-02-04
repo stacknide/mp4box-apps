@@ -570,6 +570,7 @@ function processInbandCue() {
 }
 
 function load() {
+  debugger
   var ms = video.ms;
   if (ms.readyState !== "open") {
     return;

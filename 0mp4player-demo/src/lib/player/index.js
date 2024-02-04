@@ -49,23 +49,6 @@ window.onload = function () {
   urlSelector.selectedIndex = -1;
   saveChecked = document.getElementById("saveChecked");
 
-  $("#tabs").tabs();
-  progressbar = $("#progressbar");
-  progresslabel = $("#progress-label");
-  progressbar.progressbar({
-    value: 0,
-    change: function () {
-      progresslabel.text(
-        "Download in progress: " + progressbar.progressbar("value") + "%"
-      );
-    },
-    complete: function () {
-      progresslabel.text("Download Completed!");
-    },
-  });
-
-  buildUrlList(urlSelector);
-
   video.addEventListener("seeking", onSeeking);
   video.addEventListener("error", function (e) {
     Log.error("Media Element error", e);
@@ -117,6 +100,7 @@ window.onload = function () {
 	*/
 };
 
+// TODO: miss
 /* GUI-related callback functions */
 function setUrl(url) {
   reset();
@@ -130,6 +114,7 @@ function setUrl(url) {
   }
 }
 
+// TODO: miss
 function toggleDownloadMode(event) {
   var checkedBox = event.target;
   if (checkedBox.checked) {
@@ -139,6 +124,7 @@ function toggleDownloadMode(event) {
   }
 }
 
+// TODO: miss
 function setDownloadTimeout(value) {
   var b;
   chunkTimeoutLabel.value = value;
@@ -148,6 +134,7 @@ function setDownloadTimeout(value) {
   chunkDownloadBitRate.innerHTML = b;
 }
 
+// TODO: miss
 function setDownloadChunkSize(value) {
   chunkSizeLabel.value = value;
   downloader.setChunkSize(parseInt(value));
@@ -156,14 +143,17 @@ function setDownloadChunkSize(value) {
   );
 }
 
+// TODO: miss
 function setSegmentSize(value) {
   segmentSizeLabel.value = value;
 }
 
+// TODO: miss
 function setExtractionSize(value) {
   extractionSizeLabel.value = value;
 }
 
+// TODO: miss
 function setPlaybackRate(value) {
   playbackRateLabel.value = value;
   video.playbackRate = parseInt(value);
@@ -289,7 +279,7 @@ function addBuffer(video, mp4track) {
   var mime = 'video/mp4; codecs="' + codec + '"';
   var kind = mp4track.kind;
   var trackDefault;
-  var trackDefaultSupport = typeof TrackDefault !== "undefined"; // TODO:
+  // var trackDefaultSupport = typeof TrackDefault !== "undefined"; // TODO:
   var html5TrackKind = "";
   if (codec == "wvtt") {
     if (!kind.schemeURI.startsWith("urn:gpac:")) {
@@ -302,26 +292,26 @@ function addBuffer(video, mp4track) {
       html5TrackKind = kind.value || "";
     }
   }
-  if (trackDefaultSupport) {
-    // TODO:
-    if (mp4track.type === "video" || mp4track.type === "audio") {
-      trackDefault = new TrackDefault(
-        mp4track.type,
-        mp4track.language,
-        mp4track.name,
-        [html5TrackKind],
-        track_id
-      );
-    } else {
-      trackDefault = new TrackDefault(
-        "text",
-        mp4track.language,
-        mp4track.name,
-        [html5TrackKind],
-        track_id
-      );
-    }
-  }
+  // if (trackDefaultSupport) {
+  //   // TODO:
+  //   if (mp4track.type === "video" || mp4track.type === "audio") {
+  //     trackDefault = new TrackDefault(
+  //       mp4track.type,
+  //       mp4track.language,
+  //       mp4track.name,
+  //       [html5TrackKind],
+  //       track_id
+  //     );
+  //   } else {
+  //     trackDefault = new TrackDefault(
+  //       "text",
+  //       mp4track.language,
+  //       mp4track.name,
+  //       [html5TrackKind],
+  //       track_id
+  //     );
+  //   }
+  // }
   if (MediaSource.isTypeSupported(mime)) {
     try {
       Log.info(
@@ -329,10 +319,10 @@ function addBuffer(video, mp4track) {
         "Creation with type '" + mime + "'"
       );
       sb = ms.addSourceBuffer(mime);
-      if (trackDefaultSupport) {
-        // TODO:
-        sb.trackDefaults = new TrackDefaultList([trackDefault]);
-      }
+      // if (trackDefaultSupport) {
+      //   // TODO:
+      //   sb.trackDefaults = new TrackDefaultList([trackDefault]);
+      // }
       sb.addEventListener("error", function (e) {
         Log.error("MSE SourceBuffer #" + track_id, e);
       });
@@ -570,7 +560,6 @@ function processInbandCue() {
 }
 
 function load() {
-  debugger
   var ms = video.ms;
   if (ms.readyState !== "open") {
     return;
@@ -588,7 +577,7 @@ function load() {
     } else {
       ms.duration = info.duration / info.timescale;
     }
-    displayMovieInfo(info, infoDiv);
+    displayMovieInfo(info, infoDiv); // TODO: miss
     addSourceBufferListener(info);
     stop();
     if (autoplay) {

@@ -3,7 +3,7 @@
  * Copyright (c) 2012-2013. Telecom ParisTech/TSI/MM/GPAC Cyril Concolato
  * License: BSD-3-Clause (see LICENSE file)
  */
-var Log = (function (){
+export var Log = (function (){
 		var start = new Date();
 		var LOG_LEVEL_ERROR 	= 4;
 		var LOG_LEVEL_WARNING 	= 3;
@@ -47,7 +47,7 @@ var Log = (function (){
 		};
 		return logObject;
 	})();
-	
+
 /* Helper function to print a duration value in the form H:MM:SS.MS */
 Log.getDurationString = function(duration, _timescale) {
 	var neg;
@@ -300,7 +300,7 @@ if (typeof exports !== 'undefined') {
   @param {?Number} byteOffset Offset from arrayBuffer beginning for the DataStream.
   @param {?Boolean} endianness DataStream.BIG_ENDIAN or DataStream.LITTLE_ENDIAN (the default).
   */
-var DataStream = function(arrayBuffer, byteOffset, endianness) {
+export var DataStream = function(arrayBuffer, byteOffset, endianness) {
   this._byteOffset = byteOffset || 0;
   if (arrayBuffer instanceof ArrayBuffer) {
     this.buffer = arrayBuffer;
@@ -6054,7 +6054,7 @@ BoxParser.boxEqual = function(box_a, box_b) {
  * Copyright (c) 2012-2013. Telecom ParisTech/TSI/MM/GPAC Cyril Concolato
  * License: BSD-3-Clause (see LICENSE file)
  */
-var VTTin4Parser = function() {	
+export var VTTin4Parser = function() {	
 }
 
 VTTin4Parser.prototype.parseSample = function(data) {
@@ -6093,7 +6093,7 @@ VTTin4Parser.prototype.getText = function (startTime, endTime, data) {
 	return string;
 }
 
-var XMLSubtitlein4Parser = function() {	
+export var XMLSubtitlein4Parser = function() {	
 }
 
 XMLSubtitlein4Parser.prototype.parseSample = function(sample) {
@@ -6117,7 +6117,7 @@ XMLSubtitlein4Parser.prototype.parseSample = function(sample) {
 	return res;
 }
 
-var Textin4Parser = function() {	
+export var Textin4Parser = function() {	
 }
 
 Textin4Parser.prototype.parseSample = function(sample) {
@@ -6135,10 +6135,12 @@ Textin4Parser.prototype.parseConfig = function(data) {
 	return textString;
 }
 
-if (typeof exports !== 'undefined') {
-	exports.XMLSubtitlein4Parser = XMLSubtitlein4Parser;
-	exports.Textin4Parser = Textin4Parser;
-}
+// if (typeof exports !== 'undefined') {
+// 	exports.XMLSubtitlein4Parser = XMLSubtitlein4Parser;
+// 	exports.Textin4Parser = Textin4Parser;
+// 	exports.VTTin4Parser = VTTin4Parser;
+// }
+
 // file:src/isofile.js
 /*
  * Copyright (c) 2012-2013. Telecom ParisTech/TSI/MM/GPAC Cyril Concolato
@@ -8242,6 +8244,8 @@ MP4Box.createFile = function (_keepMdatData, _stream) {
 	return file;
 }
 
-if (typeof exports !== 'undefined') {
-	exports.createFile = MP4Box.createFile;
-}
+// if (typeof exports !== 'undefined') {
+// 	exports.createFile = MP4Box.createFile;
+// }
+
+export var createFile = MP4Box.createFile;
