@@ -6,5 +6,21 @@
   "license": "MIT",
   "dependencies": {
     "@knide/mp4box": "^1.0.0"
-  }
+  },
+  "description": "video player with on-th-fly fragmentation support using mp4box.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashuvssut/mp4box-apps.git#main"
+  },
+  "keywords": [
+    "mp4box",
+    "video-player"
+  ],
+  "bugs": {
+    "url": "https://github.com/ashuvssut/mp4box-apps/issues"
+  },
+  "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme"
 }
