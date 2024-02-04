@@ -1,7 +1,10 @@
 {
-  "name": "@nide/mp4box-player",
+  "name": "@knide/mp4box-player",
   "version": "1.0.0",
   "main": "index.js",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@knide/mp4box": "^1.0.0"
+  }
 }
