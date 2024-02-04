@@ -1,0 +1,11 @@
+{
+  "name": "mp4box-apps",
+  "version": "1.0.0",
+  "author": "Ashutosh Khanduala <ashu.khanduala@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "lib/*",
+    "demo-player/"
+  ]
+}

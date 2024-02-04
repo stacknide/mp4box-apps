@@ -1,0 +1,7 @@
+{
+  "name": "mp4box-custom",
+  "version": "1.0.0",
+  "main": "mp4box.all.js",
+  "author": "ashuvssut (ashu.khanduala@gmail.com)",
+  "license": "MIT"
+}

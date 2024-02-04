@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Instructions } from "./Sections/Instructions";
-import { Mp4boxPlayer } from "./lib/player/Mp4boxPlayer";
+import { Mp4boxPlayer } from "mp4box-player";
 
 const config = {
   url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4",
