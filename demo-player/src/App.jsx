@@ -11,8 +11,11 @@ const config = {
   extractionSize: 1,
 };
 
+/** @type {import("@knide/mp4box-player").PlayerControls} */
+const defaultControls = {};
+
 function App() {
-  const [controls, setControls] = useState({});
+  const [controls, setControls] = useState(defaultControls);
   const vidRef = useRef(null);
 
   useEffect(() => {
