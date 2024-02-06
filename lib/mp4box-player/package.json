@@ -1,9 +1,9 @@
 {
   "name": "@knide/mp4box-player",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.cjs",
   "module": "src/index.js",
   "type": "module",
   "dependencies": {
