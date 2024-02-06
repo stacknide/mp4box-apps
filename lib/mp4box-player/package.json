@@ -1,15 +1,17 @@
 {
   "name": "@knide/mp4box-player",
-  "version": "2.0.1",
-  "main": "index.js",
+  "version": "2.0.2",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "dependencies": {
     "@knide/mp4box": "^1.0.0"
   },
-  "description": "video player with on-th-fly fragmentation support using mp4box.js",
+  "description": "Video player with on-th-fly fragmentation support using mp4box.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
