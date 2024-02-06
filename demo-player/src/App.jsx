@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { Instructions } from "./Sections/Instructions";
-import { Mp4boxPlayer } from "@knide/mp4box-player";
+import { Downloader, Mp4boxPlayer } from "@knide/mp4box-player";
 
 const config = {
-  url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4",
+  url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4", // test AirBnB mp4 file
   segmentSize: 1000,
   chunkSize: 1000000,
   chunkTimeout: 500,
@@ -19,18 +18,22 @@ function App() {
   const vidRef = useRef(null);
 
   useEffect(() => {
-    let mp4boxPlayerInstance = new Mp4boxPlayer(vidRef.current, config);
+    const downloader = new Downloader(vidRef.current);
+    downloader.setCustomTotalLength(28884979); // 28884979 = length of the test AirBnB mp4 file. This is needed because that test file's Content-Range header is not exposed by the server.
+    const mp4boxPlayerInstance = //
+      new Mp4boxPlayer(vidRef.current, config, downloader);
+
     setControls(mp4boxPlayerInstance.getControls());
   }, []);
 
   const {
     play,
     load,
-    initializeAllSourceBuffers,
-    initializeSourceBuffers,
-    start,
-    stop,
-    reset,
+    // initializeAllSourceBuffers,
+    // initializeSourceBuffers,
+    // start,
+    // stop,
+    // reset,
   } = controls;
 
   return (
@@ -62,87 +65,21 @@ function App() {
           <button id="loadButton" onClick={load}>
             Load Media Info
           </button>
-          <button
-            id="initAllButton"
-            onClick={initializeAllSourceBuffers}
-            disabled
-          >
+          {/* <button id="initAllButton" onClick={initializeAllSourceBuffers}>
             Add and Initialize All Source Buffers
           </button>
-          <button id="initButton" onClick={initializeSourceBuffers} disabled>
+          <button id="initButton" onClick={initializeSourceBuffers}>
             Initialize Source Buffers
           </button>
-          <button id="startButton" onClick={start} disabled>
+          <button id="startButton" onClick={start}>
             Load Media Data &amp; Play
           </button>
-          <button id="stopButton" onClick={stop} disabled>
+          <button id="stopButton" onClick={stop}>
             Stop Media Download
           </button>
-          <button onClick={reset}>Reset</button>
-          <br />
-          {/* <label for="playback_rate_range">Playback Rate</label> */}
-          {/* <input
-            id="playback_rate_range"
-            name="playback_rate_range"
-            type="range"
-            min="1"
-            max="20"
-            step="1"
-            value="1"
-            oninput="setPlaybackRate(this.value);"
-          /> */}
-          {/* <output id="playback_rate_range_out" for="playback_rate_range">
-            1
-          </output> */}
+          <button onClick={reset}>Reset</button> */}
         </fieldset>
       </section>
-
-      <section id="dummy-stuff">
-        <label htmlFor="url">URL:</label>
-        <input id="url" type="text" />
-
-        <div id="dlTimeout">
-          <label htmlFor="chunk_speed_range">
-            Download Timeout (milliseconds)
-          </label>
-          <input
-            id="chunk_speed_range"
-            name="chunk_speed_range"
-            type="range"
-            min="0"
-            max="10000"
-            step="100"
-            defaultValue="500"
-          />
-          <output id="chunk_speed_range_out">500</output>
-        </div>
-
-        <div>
-          <label htmlFor="chunk_size_range">Download Chunk Size (bytes)</label>
-          <input
-            id="chunk_size_range"
-            name="chunk_size_range"
-            type="range"
-            min="0"
-            max="10000000"
-            step="1000"
-            defaultValue="1000000"
-          />
-          <output id="chunk_size_range_out">1000000</output>
-        </div>
-
-        <div id="infoDiv"></div>
-        <div id="html5MediaDiv"></div>
-
-        <select id="urlSelector"></select>
-
-        <input id="saveChecked" type="checkbox" />
-
-        <div id="progressbar"></div>
-        <div id="progresslabel"></div>
-      </section>
-
-      <Instructions />
     </>
   );
 }
