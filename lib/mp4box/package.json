@@ -1,29 +1,27 @@
 {
   "name": "@knide/mp4box",
-  "version": "1.0.1",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
+  "version": "1.0.3",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
-  "type": "module",
+  "main": "dist/mp4box.all.js",
   "description": "Modified version of mp4box.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ashuvssut/mp4box-apps.git#main"
   },
-  "keywords": [
-    "mp4box",
-    "video-player"
-  ],
   "bugs": {
     "url": "https://github.com/ashuvssut/mp4box-apps/issues"
   },
   "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme",
-  "devDependencies": {
-    "@changesets/cli": "^2.27.1"
-  }
+  "keywords": [
+    "mp4",
+    "HTML 5 media",
+    "Media Source Extension",
+    "streaming",
+    "mp4box",
+    "video-player"
+  ]
 }
