@@ -1,6 +1,6 @@
 {
   "name": "@knide/mp4box",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/mp4box.all.js",
@@ -21,7 +21,6 @@
     "HTML 5 media",
     "Media Source Extension",
     "streaming",
-    "mp4box",
-    "video-player"
+    "mp4box"
   ]
 }
