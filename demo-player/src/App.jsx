@@ -52,10 +52,10 @@ function App() {
 
       <section id="tabs-1">
         <h1>Player Controls</h1>
-        <fieldset>
+        <div>
           <label>URL:</label>
-          <input id="url" type="text" defaultValue={config.url} />
-        </fieldset>
+          <span> {config.url}</span>
+        </div>
 
         <fieldset>
           <legend>Download/Playback Controls</legend>
