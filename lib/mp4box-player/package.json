@@ -1,12 +1,13 @@
 {
   "name": "@knide/mp4box-player",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
+  "type": "module",
   "dependencies": {
-    "@knide/mp4box": "^1.0.1"
+    "@knide/mp4box": "1.0.4"
   },
   "description": "Video player with on-th-fly fragmentation support using mp4box.js",
   "scripts": {
@@ -19,7 +20,11 @@
   },
   "keywords": [
     "mp4box",
-    "video-player"
+    "video-player",
+    "mp4",
+    "HTML 5 media",
+    "Media Source Extension",
+    "streaming"
   ],
   "bugs": {
     "url": "https://github.com/ashuvssut/mp4box-apps/issues"

@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "lib/*",
+    "lib/mp4box-player/",
     "demo-player/"
   ],
   "scripts": {
