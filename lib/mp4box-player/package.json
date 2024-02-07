@@ -1,6 +1,6 @@
 {
   "name": "@knide/mp4box-player",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/index.cjs",
@@ -12,7 +12,8 @@
   "description": "Video player with on-th-fly fragmentation support using mp4box.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c --bundleConfigAsCjs"
+    "build": "rollup -c --bundleConfigAsCjs",
+    "package": "yarn build && npm publish --access public"
   },
   "repository": {
     "type": "git",
