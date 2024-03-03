@@ -15,7 +15,7 @@ export class MediaController {
       if (range) {
         const [start, end] = range.replace(/bytes=/, '').split('-');
         const startByte = parseInt(start, 10);
-        const endByte = end ? parseInt(end, 10) : fileSize - 1;
+        const endByte = end ? Math.min(parseInt(end, 10), fileSize - 1) : fileSize - 1;
         const chunkSize = endByte - startByte + 1;
 
         const fileStream = fs.createReadStream(videoFilePath, { start: startByte, end: endByte });
