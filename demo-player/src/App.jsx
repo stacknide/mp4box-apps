@@ -3,7 +3,8 @@ import "./App.css";
 import { Downloader, Mp4boxPlayer } from "@knide/mp4box-player";
 
 const config = {
-  url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4", // test AirBnB mp4 file
+  // url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4", // test AirBnB mp4 file
+  url: "http://localhost:3000/media/range/airbnb.mp4",
   segmentSize: 1000,
   chunkSize: 1000000,
   chunkTimeout: 500,
