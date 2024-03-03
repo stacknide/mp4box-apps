@@ -6,13 +6,15 @@
   "main": "dist/index.cjs",
   "module": "src/index.js",
   "type": "module",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@knide/mp4box": "1.0.4"
   },
   "description": "Video player with on-th-fly fragmentation support using mp4box.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c --bundleConfigAsCjs"
+    "build": "rollup -c --bundleConfigAsCjs && npm run build:types",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir ./dist ./src/index.js --allowJs"
   },
   "repository": {
     "type": "git",

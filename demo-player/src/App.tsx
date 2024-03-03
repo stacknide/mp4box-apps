@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { Downloader, Mp4boxPlayer } from "@knide/mp4box-player";
+import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
 
 const config = {
   // url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4", // test AirBnB mp4 file
@@ -11,11 +11,8 @@ const config = {
   extractionSize: 1,
 };
 
-/** @type {import("@knide/mp4box-player").PlayerControls} */
-const defaultControls = {};
-
 function App() {
-  const [controls, setControls] = useState(defaultControls);
+  const [controls, setControls] = useState<Partial<PlayerControls>>({});
   const vidRef = useRef(null);
 
   useEffect(() => {
@@ -47,7 +44,7 @@ function App() {
             id="overlayTracks"
             style={{ height: "80%", background: `#808080` }}
           />
-          <div id="overlayProgress">Progress: {config.progress}</div>
+          {/* <div id="overlayProgress">Progress: {config.progress}</div> */}
         </div>
       </div>
 
@@ -60,10 +57,10 @@ function App() {
 
         <fieldset>
           <legend>Download/Playback Controls</legend>
-          <button id="playButton" onClick={play}>
+          <button id="playButton" onClick={() => play?.()}>
             Play
           </button>
-          <button id="loadButton" onClick={load}>
+          <button id="loadButton" onClick={() => load?.()}>
             Load Media Info
           </button>
           {/* <button id="initAllButton" onClick={initializeAllSourceBuffers}>
