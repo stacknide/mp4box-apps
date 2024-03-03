@@ -6,9 +6,11 @@
   "private": true,
   "workspaces": [
     "lib/mp4box-player/",
+    "lib/server/",
     "demo-player/"
   ],
   "scripts": {
-    "dev": "cd ./demo-player && yarn dev"
+    "dev": "cd ./demo-player && yarn dev",
+    "serve": "cd ./lib/server && yarn dev"
   }
 }
