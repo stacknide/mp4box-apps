@@ -1,5 +1,5 @@
 export class Downloader {
-    constructor(videoElement: any);
+    constructor(videoElement: any, transcoder?: any);
     isActive: boolean;
     realtime: boolean;
     chunkStart: number;
@@ -14,6 +14,7 @@ export class Downloader {
     abortController: AbortController;
     bufferFetcher: Function;
     videoElement: any;
+    ffmpeg: any;
     setDownloadTimeoutCallback: (callback: any) => this;
     reset: () => this;
     setRealTime: (_realtime: any) => this;

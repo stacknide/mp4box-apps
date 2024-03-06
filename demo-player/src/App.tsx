@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
+// import { Transcoder } from "./Transcoder";
 
 const config = {
   // url: "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4", // test AirBnB mp4 file
+  // url: "http://localhost:3000/media/range/mkv.mkv",
   url: "http://localhost:3000/media/range/airbnb.mp4",
   segmentSize: 1000,
   chunkSize: 1000000,
@@ -16,6 +18,8 @@ function App() {
   const vidRef = useRef(null);
 
   useEffect(() => {
+    // const transcoder = new Transcoder({ enableLogs: true, dist: "esm" });
+    // transcoder.load();
     const downloader = new Downloader(vidRef.current);
     downloader.setCustomTotalLength(28884979); // 28884979 = length of the test AirBnB mp4 file. This is needed because that test file's Content-Range header is not exposed by the server.
     const mp4boxPlayerInstance = //
