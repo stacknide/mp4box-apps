@@ -1,2 +1,3 @@
 .dump/
 node_modules/
+lib/server/src/static/

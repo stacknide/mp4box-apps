@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.10",
-    "@ffmpeg/util": "^0.12.1"
+    "@ffmpeg/util": "^0.12.1",
+    "nanoid": "^5.0.6"
   },
   "devDependencies": {
     "tsup": "^6.5.0",
