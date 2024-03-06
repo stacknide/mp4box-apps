@@ -32,7 +32,4 @@
     "url": "https://github.com/ashuvssut/mp4box-apps/issues"
   },
   "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme",
-  "devDependencies": {
-    "@changesets/cli": "^2.27.1"
-  }
 }
