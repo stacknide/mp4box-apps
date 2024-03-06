@@ -70,7 +70,7 @@ export class Transcoder {
       await ffmpeg.load({
         coreURL: safeCoreUrl,
         wasmURL: safeWasmUrl,
-        // workerURL: safeWorkerUrl,
+        workerURL: safeWorkerUrl,
       });
     } catch (e) {
       console.log(e);
