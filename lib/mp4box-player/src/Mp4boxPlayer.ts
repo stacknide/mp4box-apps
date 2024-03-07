@@ -1,29 +1,66 @@
 import {
   DataStream,
   Log,
-  Textin4Parser,
-  VTTin4Parser,
-  XMLSubtitlein4Parser,
+  // Textin4Parser,
+  // VTTin4Parser,
+  // XMLSubtitlein4Parser,
   createFile,
 } from "@knide/mp4box";
+import type { ISOFile } from "@knide/mp4box";
 import { Downloader } from "./Downloader";
+import type {
+  Mp4boxVideoElement,
+  Mp4boxMediaSource,
+  Mp4boxMovieInfo,
+  TConfig,
+  TOnError,
+  TOnErrorCallback,
+  TOnMovieInfo,
+  TOnMovieInfoCallback,
+  TOnStatusChange,
+  TOnStatusChangeCallback,
+  TOnTrackInfo,
+  TOnTrackInfoCallback,
+  TMovieInfo,
+  TTrackInfo,
+  Mp4boxSourceBuffer,
+  TrackKey,
+} from "./types";
+
+const defaultConfig: TConfig = {
+  url: "",
+  segmentSize: 1000,
+  chunkSize: 1000000,
+  chunkTimeout: 500,
+  extractionSize: 1,
+  saveBuffer: false,
+};
 
 export class Mp4boxPlayer {
-  constructor(videoElement, initialDownloadConfig, downloaderInstance) {
-    this.config = {
-      url: "", // Video URL
-      segmentSize: 1000, // The size of each segment.
-      chunkSize: 1000000, // The size of each chunk.
-      chunkTimeout: 500, // The timeout for chunk downloads.
-      extractionSize: 1, // The size for extraction.
-      saveBuffer: false, // Save the buffers to disk.
-      ...initialDownloadConfig,
-    };
+  private config: TConfig = defaultConfig;
+  private mp4boxfile: ISOFile;
+  private movieInfo: Mp4boxMovieInfo | null;
+  private video: Mp4boxVideoElement;
+  private downloader;
+  private autoplay;
+  private shouldSaveBuffers = false;
+  private onStatusChangeCallback: TOnStatusChangeCallback | null;
+  private onMovieInfoCallback: TOnMovieInfoCallback | null;
+  private onTrackInfoCallback: TOnTrackInfoCallback | null;
+  private onErrorCallback: TOnErrorCallback | null;
+  private SHOW_LOGS = false;
 
-    this.mp4boxfile;
-    this.movieInfo;
+  constructor(
+    videoElement: HTMLVideoElement,
+    initialDownloadConfig: TConfig | {} = {},
+    downloaderInstance: Downloader
+  ) {
+    this.config = { ...defaultConfig, ...initialDownloadConfig };
 
-    // if !videoElement ...
+    this.mp4boxfile = createFile();
+    this.movieInfo = null;
+
+    if (!videoElement) throw new Error("No video element provided");
     this.video = videoElement;
 
     this.downloader = downloaderInstance || new Downloader(videoElement);
@@ -32,7 +69,7 @@ export class Mp4boxPlayer {
 
     // if (document.readyState !== 'complete')  ....
     // this.overlayTracks = document.getElementById("overlayTracks"); // TODO: No subtitle support for now
-    this.shouldSaveBuffers = this.config.saveBuffer;
+    this.shouldSaveBuffers = this.config.saveBuffer === true;
 
     /** @private Only onStatusChange is callable */
     this.onStatusChangeCallback = null;
@@ -44,48 +81,33 @@ export class Mp4boxPlayer {
     this.onErrorCallback = null;
 
     this.SHOW_LOGS = false;
-    this.showLogs = (shouldShowLogs) => (this.SHOW_LOGS = shouldShowLogs);
 
     this.onWindowLoad();
   }
 
   /* Callback START */
-  /**
-   * @callback OnStatusChangeCallback
-   * @param {string} controlName - Name of the control.
-   * @param {any} status - Represents boolean for "enabled" status, number for "value" status, string for "text" status.
-   */
-  /** @param {OnStatusChangeCallback} callback - Called when the status of a control changes */
-  onStatusChange = (callback) => {
+  showLogs = (shouldShowLogs: boolean) => {
+    this.SHOW_LOGS = shouldShowLogs;
+  };
+
+  onStatusChange: TOnStatusChange = (callback) => {
     this.onStatusChangeCallback = callback;
   };
 
-  /**
-   * @callback OnInfoCallback
-   * @param {Object} info
-   */
-  /** @param {OnInfoCallback} callback - Called when movieInfo is available */
-  onMovieInfo = (callback) => {
+  onMovieInfo: TOnMovieInfo = (callback) => {
     this.onMovieInfoCallback = callback;
   };
 
-  /** @param {OnInfoCallback} callback - Called when trackInfo is available */
-  onTrackInfo = (callback) => {
+  onTrackInfo: TOnTrackInfo = (callback) => {
     this.onTrackInfoCallback = callback;
   };
 
-  /**
-   * @callback OnErrorCallback
-   * @param {string} errorId - String identifier for the error.
-   * @param {Object} error - Error object
-   * @param {any} extraContext - Optional custom error message/data from Mp4boxPlayer.
-   */
-  /** @param {OnErrorCallback} callback - Called when the status of a control changes */
-  onError = (callback) => {
+  onError: TOnError = (callback) => {
     this.onErrorCallback = callback;
   };
   /* Callback END */
 
+  /** // TODO: miss::subtitiles
   processInbandCue = () => {
     this.SHOW_LOGS && console.log("processInbandCue");
     var content = "";
@@ -115,7 +137,7 @@ export class Mp4boxPlayer {
     //   ["image/svg+xml", "text/html", "image/x3d+xml"].indexOf(this.track.mime) >
     //   -1
     // ) {
-    //   /* Presentable track */
+    //   // Presentable track
     //   this.track.div.innerHTML = content;
     //   if (this.track.mime === "image/x3d+xml") {
     //     if (typeof x3dom !== "undefined") {
@@ -123,9 +145,10 @@ export class Mp4boxPlayer {
     //     }
     //   }
     // } else {
-    //   /* Pure metadata track */
+    //   // Pure metadata track
     // }
   };
+  */
 
   /* Video Event Listeners START */
   addVideoEventListeners = () => {
@@ -140,16 +163,16 @@ export class Mp4boxPlayer {
     this.video.removeEventListener("playing", this.onPlaying);
   };
 
-  onPlaying = (e) => {
+  onPlaying = (e: Event) => {
     this.SHOW_LOGS && console.log("onPlaying");
     this.video.playing = true;
-    if (this.video.onPlayCue) {
-      this.processInbandCue.call(this.video.onPlayCue);
-      this.video.onPlayCue = null;
-    }
+    // if (this.video.onPlayCue) {
+    //   this.processInbandCue.call(this.video.onPlayCue);
+    //   this.video.onPlayCue = null;
+    // }
   };
 
-  onSeeking(e) {
+  onSeeking(e: Event) {
     this.SHOW_LOGS && console.log("onSeeking");
 
     var i, start, end;
@@ -171,6 +194,7 @@ export class Mp4boxPlayer {
       this.downloader.stop();
       this.resetCues();
 
+      if (!this.mp4boxfile) return console.error("mp4boxfile not initialized");
       seek_info = this.mp4boxfile.seek(this.video.currentTime, true);
       this.downloader.setChunkStart(seek_info.offset);
       this.downloader.resume();
@@ -183,12 +207,14 @@ export class Mp4boxPlayer {
 
   resetCues = () => {
     this.SHOW_LOGS && console.log("resetCues");
+    /** // TODO: miss::subtitles 
     for (var i = 0; i < this.video.textTracks.length; i++) {
       var texttrack = this.video.textTracks[i];
       while (texttrack.cues.length > 0) {
         texttrack.removeCue(texttrack.cues[0]);
       }
     }
+    */
   };
 
   onWindowLoad = () => {
@@ -213,12 +239,15 @@ export class Mp4boxPlayer {
           video.playing = false;
         });
     */
+
+    /** // TODO: these tracks are arrays as per generateTrackInfo but why does it has onchange?  
     if (this.video.videoTracks)
       this.video.videoTracks.onchange = this.generateTrackInfo;
     if (this.video.audioTracks)
       this.video.audioTracks.onchange = this.generateTrackInfo;
     if (this.video.textTracks)
       this.video.textTracks.onchange = this.generateTrackInfo;
+    */
     this.reset();
 
     /* Loading Track Viewers 
@@ -265,8 +294,7 @@ export class Mp4boxPlayer {
     this.SHOW_LOGS && console.log("resetMediaSource");
     if (this.video.ms) return;
 
-    var mediaSource;
-    mediaSource = new MediaSource();
+    let mediaSource: Mp4boxMediaSource = new MediaSource();
     mediaSource.video = this.video;
     this.video.ms = mediaSource;
     mediaSource.addEventListener("sourceopen", this.onSourceOpen);
@@ -275,23 +303,27 @@ export class Mp4boxPlayer {
     /* TODO: cannot remove Text tracks! Turning them off for now*/
     for (var i = 0; i < this.video.textTracks.length; i++) {
       var tt = this.video.textTracks[i];
+      if (!tt) continue;
       tt.mode = "disabled";
     }
   };
 
-  onSourceClose = (e) => {
+  onSourceClose = (e: Event) => {
     this.SHOW_LOGS && console.log("onSourceClose");
-    var ms = e.target;
-    if (ms.video.error) {
+    var ms = e.target as Mp4boxMediaSource;
+    if (ms.video?.error) {
       // TODO:
       Log.error("MSE", "Source closed, video error: " + ms.video.error.code);
-      this.onErrorCallback?.(`MSE, Source closed, video error`, e);
+      this.onErrorCallback?.(
+        `MSE, Source closed, video error`,
+        ms.video?.error
+      );
     } else {
       Log.info("MSE", "Source closed, no error");
     }
   };
 
-  onSourceOpen = (e) => {
+  onSourceOpen = (e: Event) => {
     this.SHOW_LOGS && console.log("onSourceOpen");
     var ms = e.target;
     Log.info("MSE", "Source opened");
@@ -319,17 +351,20 @@ export class Mp4boxPlayer {
   /* Load START */
   load = () => {
     this.SHOW_LOGS && console.log("load");
-    var ms = this.video.ms;
-    if (ms.readyState !== "open") {
+
+    const ms = this.video.ms;
+    if (!ms || ms.readyState !== "open") {
       return;
     }
 
     this.mp4boxfile = createFile();
+    if (!this.mp4boxfile) throw new Error("mp4boxfile ISOFile not created");
+
     this.addVideoEventListeners();
     this.mp4boxfile.onMoovStart = () => {
       Log.info("Application", "Starting to parse movie information");
     };
-    this.mp4boxfile.onReady = (info) => {
+    this.mp4boxfile.onReady = (info: Mp4boxMovieInfo) => {
       Log.info("Application", "Movie information received");
       this.movieInfo = info;
       if (info.isFragmented) {
@@ -349,14 +384,15 @@ export class Mp4boxPlayer {
     this.mp4boxfile.onSidx = (sidx) => {
       this.SHOW_LOGS && console.log(sidx);
     };
-    this.mp4boxfile.onItem = (item) => {
+    const player = this;
+    this.mp4boxfile.onItem = function (item) {
       var metaHandler = this.getMetaHandler();
       if (metaHandler.startsWith("mif1")) {
         var pitem = this.getPrimaryItem();
-        this.SHOW_LOGS &&
+        player.SHOW_LOGS &&
           console.log("Found primary item in MP4 of type " + item.content_type);
         if (pitem.id === item.id) {
-          this.video.poster = //
+          player.video.poster = //
             window.URL.createObjectURL(new Blob([item.data.buffer]));
         }
       }
@@ -364,12 +400,13 @@ export class Mp4boxPlayer {
     this.mp4boxfile.onSegment = (id, user, buffer, sampleNum, is_last) => {
       var sb = user;
       this.saveBuffer(buffer, `track-${id}-segment-${sb.segmentIndex}.m4s`);
-      sb.segmentIndex++;
-      sb.pendingAppends.push({ id, buffer, sampleNum, is_last });
-      const message = `Received new segment for track ${id} up to sample #${sampleNum}, segments pending append: ${sb.pendingAppends.length}`;
+      if (sb.segmentIndex !== undefined) sb.segmentIndex++;
+      sb.pendingAppends?.push({ id, buffer, sampleNum, is_last });
+      const message = `Received new segment for track ${id} up to sample #${sampleNum}, segments pending append: ${sb.pendingAppends?.length}`;
       Log.info("Application", message);
       this.onUpdateEnd(sb, true, false);
     };
+    /**
     this.mp4boxfile.onSamples = (id, user, samples) => {
       var sampleParser;
       var cue;
@@ -449,7 +486,7 @@ export class Mp4boxPlayer {
         }
       }
     };
-
+    */
     this.onStatusChangeCallback?.("load", false);
     this.onStatusChangeCallback?.("start", false);
     this.onStatusChangeCallback?.("stop", true);
@@ -462,6 +499,10 @@ export class Mp4boxPlayer {
         );
         this.onStatusChangeCallback?.("progress", progressVal);
         Log.info("Progress", `${progressVal}%`);
+        if (!this.mp4boxfile) {
+          console.error("Cannot appendBuffer. mp4boxfile not initialized!");
+          return;
+        }
         nextStart = this.mp4boxfile.appendBuffer(buffer, end);
       }
       if (end) {
@@ -495,6 +536,7 @@ export class Mp4boxPlayer {
       var info = this.movieInfo;
       for (var i = 0; i < info.tracks.length; i++) {
         var track = info.tracks[i];
+        if (!track) continue;
         this.addBuffer(this.video, track);
         // var checkBox = document.getElementById("addTrack" + track.id); // TODO: miss
         // checkBox.checked = true;
@@ -505,18 +547,27 @@ export class Mp4boxPlayer {
 
   initializeSourceBuffers = () => {
     this.SHOW_LOGS && console.log("Initializing source buffers");
+    if (!this.mp4boxfile)
+      throw new Error(
+        "Cannot initializeSourceBuffers. mp4boxfile not initialized"
+      );
     var initSegs = this.mp4boxfile.initializeSegmentation();
     for (var i = 0; i < initSegs.length; i++) {
-      var sb = initSegs[i].user;
+      const initSeg = initSegs[i];
+      if (!initSeg) continue;
+      var sb = initSeg.user;
+      if (!sb.ms)
+        return console.error("Cannot initializeSourceBuffers. sb.ms is", sb.ms);
+
       if (i === 0) {
         sb.ms.pendingInits = 0;
       }
-      sb.addEventListener("updateend", this.onInitAppended.bind(this));
+      sb.addEventListener("updateend", (e) => this.onInitAppended.bind(this));
       Log.info(`MSE - SourceBuffer #${sb.id}`, "Appending initialization data");
-      sb.appendBuffer(initSegs[i].buffer);
-      this.saveBuffer(initSegs[i].buffer, `track-${initSegs[i].id}-init.mp4`);
+      sb.appendBuffer(initSeg.buffer);
+      this.saveBuffer(initSeg.buffer, `track-${initSeg.id}-init.mp4`);
       sb.segmentIndex = 0;
-      sb.ms.pendingInits++;
+      if (sb.ms.pendingInits !== undefined) sb.ms.pendingInits++;
     }
     this.onStatusChangeCallback?.("initializeAllSourceBuffers", false);
     this.onStatusChangeCallback?.("initializeSourceBuffers", false);
@@ -524,10 +575,10 @@ export class Mp4boxPlayer {
   /* Load END */
 
   /* SB Append START */
-  onInitAppended(e) {
+  onInitAppended(e: Event) {
     this.SHOW_LOGS && console.log("onInitAppended");
-    var sb = e.target;
-    if (sb.ms.readyState === "open") {
+    var sb = e.target as Mp4boxSourceBuffer;
+    if (sb.ms?.readyState === "open") {
       this.updateBufferedString(sb, "Init segment append ended");
       sb.sampleNum = 0;
       sb.removeEventListener("updateend", (e) => this.onInitAppended(e));
@@ -537,6 +588,8 @@ export class Mp4boxPlayer {
       );
       /* In case there are already pending buffers we call onUpdateEnd to start appending them*/
       this.onUpdateEnd(sb, false, true);
+
+      if (sb.ms?.pendingInits === undefined) return;
       sb.ms.pendingInits--;
       if (this.autoplay && sb.ms.pendingInits === 0) {
         this.start();
@@ -551,18 +604,25 @@ export class Mp4boxPlayer {
     this.downloader.setChunkStart(this.mp4boxfile.seek(0, true).offset);
     this.downloader.setChunkSize(this.config.chunkSize); // TODO
     this.downloader.setInterval(this.config.chunkTimeout);
+
+    if (!this.mp4boxfile) throw Error("mp4boxfile not initialized");
     this.mp4boxfile.start();
+
     this.downloader.resume();
   };
 
-  onUpdateEnd(sb, isNotInit, isEndOfAppend) {
+  onUpdateEnd(
+    sb: Mp4boxSourceBuffer,
+    isNotInit: boolean,
+    isEndOfAppend: boolean
+  ) {
     this.SHOW_LOGS &&
       console.log(
         "onUpdateEnd",
         sb.id,
-        sb.ms.readyState,
+        sb.ms?.readyState,
         sb.updating,
-        sb.pendingAppends.length,
+        sb.pendingAppends?.length,
         sb.segmentIndex
       );
     if (isEndOfAppend === true) {
@@ -575,8 +635,8 @@ export class Mp4boxPlayer {
       }
       if (sb.is_last) {
         try {
-          if (sb.ms.readyState === "open" && !sb.updating) sb.ms.endOfStream();
-        } catch (e) {
+          if (sb.ms?.readyState === "open" && !sb.updating) sb.ms.endOfStream();
+        } catch (e: any) {
           const errId = `MSE - SourceBuffer #${sb.id}`;
           Log.error(errId, e);
           this.onErrorCallback?.(errId, e, sb);
@@ -584,8 +644,9 @@ export class Mp4boxPlayer {
       }
     }
     if (
-      sb.ms.readyState === "open" &&
+      sb.ms?.readyState === "open" &&
       sb.updating === false &&
+      typeof sb.pendingAppends !== "undefined" &&
       sb.pendingAppends.length > 0
     ) {
       var obj = sb.pendingAppends.shift();
@@ -593,13 +654,16 @@ export class Mp4boxPlayer {
         `MSE - SourceBuffer #${sb.id}`,
         `Appending new buffer, pending: ${sb.pendingAppends.length}`
       );
+      if (!obj) return console.error("obj is null");
       sb.sampleNum = obj.sampleNum;
       sb.is_last = obj.is_last;
       sb.appendBuffer(obj.buffer);
     }
   }
 
-  updateBufferedString = (sb, string) => {
+  updateBufferedString = (sb: Mp4boxSourceBuffer, string: string) => {
+    if (!sb.ms)
+      return console.error("Cannot updateBufferedString. sb.ms is", sb.ms);
     this.SHOW_LOGS &&
       console.log("updateBufferedString", sb.id, sb.ms.readyState);
     var rangeString;
@@ -608,7 +672,7 @@ export class Mp4boxPlayer {
       const currTime = Log.getDurationString(this.video.currentTime, 1);
       Log.info(
         `MSE - SourceBuffer #${sb.id}`,
-        `${string}, updating: ${sb.updating}, currentTime: ${currTime}, buffered: ${rangeString}, pending: ${sb.pendingAppends.length}`
+        `${string}, updating: ${sb.updating}, currentTime: ${currTime}, buffered: ${rangeString}, pending: ${sb.pendingAppends?.length}`
       );
       // if (sb.bufferTd === undefined) { // TODO: miss
       //   sb.bufferTd = document.getElementById("buffer" + sb.id);
@@ -619,18 +683,18 @@ export class Mp4boxPlayer {
   /* SB Append END */
 
   /* Buffer Management START */
-  setShouldSaveBuffers = (shouldSaveBuffers) => {
+  setShouldSaveBuffers = (shouldSaveBuffers: boolean) => {
     this.shouldSaveBuffers = shouldSaveBuffers;
   };
-  saveBuffer = (buffer, name) => {
-    this.SHOW_LOGS && console.log("saveBuffer", name);
+  saveBuffer = (buffer: Buffer, fileName: string) => {
+    this.SHOW_LOGS && console.log("saveBuffer", fileName);
     if (this.shouldSaveBuffers) {
       var d = new DataStream(buffer);
-      d.save(name);
+      d.save(fileName);
     }
   };
 
-  addSourceBufferListener = (info) => {
+  addSourceBufferListener = (info: Mp4boxMovieInfo) => {
     this.SHOW_LOGS && console.log("addSourceBufferListener");
     // for (var i = 0; i < info.tracks.length; i++) {
     //   var track = info.tracks[i];
@@ -660,10 +724,14 @@ export class Mp4boxPlayer {
     // }
   };
 
-  addBuffer = (video, mp4track) => {
+  addBuffer = (
+    video: Mp4boxVideoElement,
+    mp4track: Mp4boxMovieInfo["tracks"][number]
+  ) => {
     this.SHOW_LOGS && console.log("addBuffer", mp4track.id);
-    var sb;
+    var sb: Mp4boxSourceBuffer;
     var ms = video.ms;
+    if (!ms) return console.error(`Cannot addBuffer. video.ms is ${ms}`);
     var track_id = mp4track.id;
     var codec = mp4track.codec;
     var mime = 'video/mp4; codecs="' + codec + '"';
@@ -713,10 +781,11 @@ export class Mp4boxPlayer {
         //   // TODO:
         //   sb.trackDefaults = new TrackDefaultList([trackDefault]);
         // }
+        const player = this;
         sb.addEventListener("error", function (e) {
           const errId = `MSE - SourceBuffer #${track_id}`;
           Log.error(errId, e);
-          this.onErrorCallback?.(errId, e);
+          player.onErrorCallback?.(errId, e);
         });
         sb.ms = ms;
         sb.id = track_id;
@@ -724,7 +793,7 @@ export class Mp4boxPlayer {
           nbSamples: this.config.segmentSize,
         }); // TODO:
         sb.pendingAppends = [];
-      } catch (e) {
+      } catch (e: any) {
         const errId = `MSE SourceBuffer #${track_id}`;
         const message = `Cannot create buffer with type '${mime}'`;
         Log.error(errId, message, e);
@@ -775,15 +844,23 @@ export class Mp4boxPlayer {
     }
   };
 
-  removeBuffer = (video, track_id) => {
+  removeBuffer = (video: Mp4boxVideoElement, track_id: string) => {
     this.SHOW_LOGS && console.log("removeBuffer", track_id);
     var i;
-    var sb;
+    var sb: Mp4boxSourceBuffer | undefined;
     var ms = video.ms;
+    if (!ms) {
+      console.error("Cannot removeBuffer: ms is null");
+      return false;
+    }
     Log.info(`MSE - SourceBuffer #${track_id}`, "Removing buffer");
     var foundSb = false;
     for (i = 0; i < ms.sourceBuffers.length; i++) {
       sb = ms.sourceBuffers[i];
+      if (!sb) {
+        console.error("Cannot removeBuffer: sb is null", ms.sourceBuffers, i);
+        continue;
+      }
       if (sb.id == track_id) {
         ms.removeSourceBuffer(sb);
         this.mp4boxfile.unsetSegmentOptions(track_id);
@@ -794,9 +871,10 @@ export class Mp4boxPlayer {
     if (!foundSb) {
       for (i = 0; i < video.textTracks.length; i++) {
         var track = video.textTracks[i];
+        if (!track) continue;
         if (track.label === "track_" + track_id) {
           track.mode = "disabled";
-          track.div.style.display = "none";
+          // track.div.style.display = "none"; // TODO miss::subtitles
           this.mp4boxfile.unsetExtractionOptions(track_id);
           break;
         }
@@ -811,7 +889,7 @@ export class Mp4boxPlayer {
   /* Buffer Management END */
 
   /* Subtitles START */
-  initTrackViewer = (track) => {
+  initTrackViewer = (track: TextTrack) => {
     this.SHOW_LOGS && console.log("initTrackViewer", track.id);
     // TODO: miss::subtitles
     // if (track.mime === "image/x3d+xml" && typeof x3dom === "undefined") {
@@ -861,13 +939,13 @@ export class Mp4boxPlayer {
   }
 
   /** Info START */
-  generateMovieInfo = (info) => {
+  generateMovieInfo = (info: Mp4boxMovieInfo) => {
     const fileLength = this.downloader.getFileLength();
     const bitrate = Math.floor(
       (fileLength * 8 * info.timescale) / (info.duration * 1000)
     );
 
-    const durationStr = (dur, timescale) =>
+    const durationStr = (dur: number, timescale: number) =>
       timescale ? Log.getDurationString(dur, timescale) : ``;
     const actualTime =
       `${info.duration}/${info.timescale} ` +
@@ -875,7 +953,7 @@ export class Mp4boxPlayer {
     const fragDurationStr = //
       durationStr(info.fragment_duration, info.timescale);
 
-    const movieInfo = {
+    const movieInfo: TMovieInfo = {
       header: "Movie Info",
       fileLength: 0,
       tableRows: [
@@ -903,7 +981,7 @@ export class Mp4boxPlayer {
 
     const trackTypes = ["Video", "Audio", "Subtitle", "Metadata", "Other"];
     for (const type of trackTypes) {
-      const typeKey = `${type.toLowerCase()}Tracks`;
+      const typeKey = `${type.toLowerCase()}Tracks` as TrackKey;
       if (info[typeKey]) {
         movieInfo.trackInfo.push({ type: type, tracks: info[typeKey] });
       }
@@ -912,59 +990,64 @@ export class Mp4boxPlayer {
     this.onMovieInfoCallback?.(movieInfo);
   };
 
-  /**
-   * Retrieves information about video, audio, and text tracks in HTML5 media element.
-   * @returns {Object} - Object containing information about video, audio, and text tracks.
-   */
-  generateTrackInfo(video) {
-    const trackInfo = {
+  /** Retrieves information about video, audio, and text tracks in HTML5 media element.*/
+  generateTrackInfo(video: Mp4boxVideoElement) {
+    const trackInfo: TTrackInfo = {
       videoTracks: [],
       audioTracks: [],
       textTracks: [],
     };
 
-    for (let i = 0; i < video.videoTracks.length; i++) {
-      trackInfo.videoTracks.push({
-        id: video.videoTracks[i].id,
-        type: "video",
-        kind: video.videoTracks[i].kind,
-        label: video.videoTracks[i].label,
-        language: video.videoTracks[i].language,
-        selected: video.videoTracks[i].selected,
-      });
+    if (video.videoTracks?.length) {
+      for (let i = 0; i < video.videoTracks.length; i++) {
+        const track = video.videoTracks[i];
+        if (!track) continue;
+        trackInfo.videoTracks.push({
+          type: "video",
+          id: track.id,
+          kind: track.kind,
+          label: track.label,
+          language: track.language,
+          selected: track.selected,
+        });
+      }
     }
 
-    for (let i = 0; i < video.audioTracks.length; i++) {
-      trackInfo.audioTracks.push({
-        id: video.audioTracks[i].id,
-        type: "audio",
-        kind: video.audioTracks[i].kind,
-        label: video.audioTracks[i].label,
-        language: video.audioTracks[i].language,
-        enabled: video.audioTracks[i].enabled,
-      });
+    if (video.audioTracks?.length) {
+      for (let i = 0; i < video.audioTracks.length; i++) {
+        const track = video.audioTracks[i];
+        if (!track) continue;
+        trackInfo.audioTracks.push({
+          type: "audio",
+          id: track.id,
+          kind: track.kind,
+          label: track.label,
+          language: track.language,
+          enabled: track.enabled,
+        });
+      }
     }
 
-    for (let i = 0; i < video.textTracks.length; i++) {
-      trackInfo.textTracks.push({
-        id: video.textTracks[i].id,
-        type: "text",
-        kind: video.textTracks[i].kind,
-        label: video.textTracks[i].label,
-        language: video.textTracks[i].language,
-        mode: video.textTracks[i].mode,
-      });
+    if (video.textTracks?.length) {
+      for (let i = 0; i < video.textTracks.length; i++) {
+        const track = video.textTracks[i];
+        if (!track) continue;
+        trackInfo.textTracks.push({
+          id: track.id,
+          type: "text",
+          kind: track.kind,
+          label: track.label,
+          language: track.language,
+          mode: track.mode,
+        });
+      }
     }
 
     this.onTrackInfoCallback?.(trackInfo);
   }
 
-  /**
-   * Converts a date object to an object containing 'date' and 'time' properties.
-   * @param {Date} date - a JS Date object instance
-   * @returns {Object} - Object with 'date' and 'time' properties.
-   */
-  dateFmt(date) {
+  /** Converts a date object to an object containing 'date' and 'time' properties.*/
+  dateFmt(date: Date) {
     if (!date) return { date: "", time: "" };
 
     const formattedDate = {
@@ -976,17 +1059,3 @@ export class Mp4boxPlayer {
   }
   /** Info END */
 }
-
-/**
- * @typedef {Object} PlayerControls
- * @property {function} play - Enters Playing state + Initializes the player.
- * @property {function} stop - Stops downloading any more chunks.
- * @property {function} reset - Resets the player by reinitializing the MediaSource.
- * @property {function} load - Initializes the player.
- * @property {function} start - Can only be used if the player has already been initialized.
- * @property {function} initializeAllSourceBuffers - Adds new source buffers to the player + initializes the source buffers.
- * @property {function} initializeSourceBuffers - Only initializes the source buffers.
- */
-
-/** @type {PlayerControls} */
-export const PlayerControls = {};

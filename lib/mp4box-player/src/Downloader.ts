@@ -1,7 +1,32 @@
-import { Log } from "@knide/mp4box";
+import {
+  Log,
+  type Mp4boxSourceBuffer,
+  type Mp4boxVideoElement,
+} from "@knide/mp4box";
+import type {
+  TBufferFetcher,
+  TDownloadTimeoutCallback,
+  TOnDownloadCallback,
+} from "./types";
 
 export class Downloader {
-  constructor(videoElement, transcoder = null) {
+  isActive: boolean;
+  realtime: boolean;
+  chunkStart: number;
+  chunkSize: number;
+  totalLength: number;
+  customTotalLength: number;
+  chunkTimeout: number;
+  url: string;
+  eof: boolean;
+  private callback: TOnDownloadCallback | null;
+  private downloadTimeoutCallback: TDownloadTimeoutCallback | null;
+  abortController: AbortController;
+  ffmpeg: any; // TODO
+  bufferFetcher: TBufferFetcher | null;
+  videoElement: Mp4boxVideoElement;
+  timeoutID?: number;
+  constructor(videoElement: Mp4boxVideoElement, transcoder = null) {
     this.isActive = false;
     this.realtime = true;
     this.chunkStart = 0;
@@ -9,7 +34,7 @@ export class Downloader {
     this.totalLength = 0;
     this.customTotalLength = 0;
     this.chunkTimeout = 1000;
-    this.url = null;
+    this.url = "";
     this.callback = null;
     this.eof = false;
     this.downloadTimeoutCallback = null;
@@ -21,11 +46,11 @@ export class Downloader {
 
     if (transcoder) {
       this.ffmpeg = transcoder;
-      transcoder.load();
+      // transcoder.load();
     }
   }
 
-  setDownloadTimeoutCallback = (callback) => {
+  setDownloadTimeoutCallback = (callback: TDownloadTimeoutCallback) => {
     this.downloadTimeoutCallback = callback;
     return this;
   };
@@ -37,33 +62,33 @@ export class Downloader {
     return this;
   };
 
-  setRealTime = (_realtime) => {
+  setRealTime = (_realtime: boolean) => {
     this.realtime = _realtime;
     return this;
   };
 
-  setChunkSize = (_size) => {
+  setChunkSize = (_size: number) => {
     this.chunkSize = _size;
     return this;
   };
 
-  setChunkStart = (_start) => {
+  setChunkStart = (_start: number) => {
     this.chunkStart = _start;
     this.eof = false;
     return this;
   };
 
-  setInterval = (_timeout) => {
+  setInterval = (_timeout: number) => {
     this.chunkTimeout = _timeout;
     return this;
   };
 
-  setUrl = (_url) => {
+  setUrl = (_url: string) => {
     this.url = _url;
     return this;
   };
 
-  setCallback = (_callback) => {
+  setCallback = (_callback: TOnDownloadCallback) => {
     this.callback = _callback;
     return this;
   };
@@ -76,7 +101,7 @@ export class Downloader {
     return this.totalLength;
   };
 
-  setCustomTotalLength = (customTotalLength) => {
+  setCustomTotalLength = (customTotalLength: number) => {
     this.customTotalLength = customTotalLength;
   };
 
@@ -90,7 +115,7 @@ export class Downloader {
    *   - {AbortSignal} abortSignal - An AbortSignal object that allows you to abort the fetch.
    *   The fetcher function is expected to return a Promise that resolves to the fetched data (e.g., ArrayBuffer and totalLength of video file. i.e. it will return {buffer, totalLength} object
    */
-  setBufferFetcher = (fetcher) => {
+  setBufferFetcher = (fetcher: TBufferFetcher) => {
     this.bufferFetcher = fetcher;
   };
 
@@ -103,12 +128,12 @@ export class Downloader {
     }
     if (dl.eof === true) {
       Log.info("Downloader", "File download done.");
-      this.callback(null, true);
+      this.callback?.(null, true);
       return;
     }
 
-    const defaultBufferFetcher = (start, end, signal) => {
-      var range = null;
+    const defaultBufferFetcher: TBufferFetcher = async (start, end, signal) => {
+      var range = "";
       var maxRange;
       if (end < Infinity) {
         range = "bytes=" + start + "-";
@@ -123,27 +148,25 @@ export class Downloader {
 
       var options = { method: "GET", headers: { Range: range }, signal };
 
-      return fetch(this.url, options).then(async function (response) {
-        if (response.status == 404) {
-          dl.callback(null, false, true);
-        }
-
-        if ([200, 206, 304, 416].includes(response.status)) {
-          const rangeReceived = response.headers.get("Content-Range");
-          if (!dl.totalLength && rangeReceived) {
-            var sizeIndex;
-            sizeIndex = rangeReceived.indexOf("/");
-            if (sizeIndex > -1) {
-              dl.totalLength = +rangeReceived.slice(sizeIndex + 1);
-            }
+      const response = await fetch(this.url, options);
+      if (response.status == 404) {
+        dl.callback?.(null, false, true);
+      }
+      if ([200, 206, 304, 416].includes(response.status)) {
+        const rangeReceived = response.headers.get("Content-Range");
+        if (!dl.totalLength && rangeReceived) {
+          var sizeIndex;
+          sizeIndex = rangeReceived.indexOf("/");
+          if (sizeIndex > -1) {
+            dl.totalLength = +rangeReceived.slice(sizeIndex + 1);
           }
-
-          const totalLength = dl.customTotalLength || dl.totalLength;
-          return { buffer: await response.arrayBuffer(), totalLength };
-        } else {
-          throw new Error("HTTP Error " + response.status);
         }
-      });
+
+        const totalLength = dl.customTotalLength || dl.totalLength;
+        return { buffer: await response.arrayBuffer(), totalLength };
+      } else {
+        throw new Error("HTTP Error " + response.status);
+      }
     };
 
     var controller = new AbortController();
@@ -201,7 +224,7 @@ export class Downloader {
           buffer.fileStart = dl.chunkStart;
         }
 
-        dl.callback(buffer, dl.eof);
+        dl.callback?.(buffer, dl.eof);
 
         if (dl.isActive === true && dl.eof === false) {
           var timeoutDuration = 0;
@@ -210,8 +233,8 @@ export class Downloader {
           } else {
             timeoutDuration = dl.computeWaitingTimeFromBuffer(dl.videoElement);
           }
-          if (dl.setDownloadTimeoutCallback)
-            dl.setDownloadTimeoutCallback(timeoutDuration);
+          if (dl.downloadTimeoutCallback)
+            dl.downloadTimeoutCallback(timeoutDuration);
 
           Log.info(
             "Downloader",
@@ -230,7 +253,7 @@ export class Downloader {
         if (error.name === "AbortError") {
           console.info("Range request aborted.");
         } else {
-          dl.callback(null, false, error);
+          dl.callback?.(null, false, error);
         }
       });
   };
@@ -264,9 +287,13 @@ export class Downloader {
     return this;
   };
 
-  computeWaitingTimeFromBuffer(video) {
+  computeWaitingTimeFromBuffer(video: Mp4boxVideoElement) {
     var ms = video.ms;
-    var sb;
+    if (!ms) {
+      console.log("Cannot computeWaitingTimeFromBuffer. video.ms is", ms);
+      return 1; // return 1 ms (instead of 0) to be able to compute a non-infinite bitrate value
+    }
+    var sb: Mp4boxSourceBuffer | undefined;
     var startRange, endRange;
     var currentTime = video.currentTime;
     var playbackRate = video.playbackRate;
@@ -279,6 +306,7 @@ export class Downloader {
 	   may already be done by the browser when calling video.buffered (to be checked: TODO) */
     for (var i = 0; i < ms.activeSourceBuffers.length; i++) {
       sb = ms.activeSourceBuffers[i];
+      if (!sb) continue;
       for (var j = 0; j < sb.buffered.length; j++) {
         startRange = sb.buffered.start(j);
         endRange = sb.buffered.end(j);
