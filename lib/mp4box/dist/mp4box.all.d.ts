@@ -88,6 +88,7 @@ export type InitSegs = {
     user: Mp4boxSourceBuffer;
     buffer: Buffer;
 };
+export type ISOFileInstance = InstanceType<typeof ISOFile>;
 /**
  * @callback setLogLevel
  * @param {number} level
@@ -111,38 +112,6 @@ export type InitSegs = {
  * @type {Logger}
  */
 export var Log: Logger;
-export class MP4BoxStream {
-    private constructor();
-    /*************************************************************************
-      Common API between MultiBufferStream and SimpleStream
-     *************************************************************************/
-    getPosition(): any;
-    getEndPosition(): any;
-    getLength(): any;
-    seek(pos: any): boolean;
-    position: number | undefined;
-    isEos(): boolean;
-    /*************************************************************************
-      Read methods, simimar to DataStream but simpler
-     *************************************************************************/
-    readAnyInt(size: any, signed: any): number;
-    readUint8(): any;
-    readUint16(): any;
-    readUint24(): any;
-    readUint32(): any;
-    readUint64(): any;
-    readString(length: any): string;
-    readCString(): string;
-    readInt8(): any;
-    readInt16(): any;
-    readInt32(): any;
-    readInt64(): any;
-    readUint8Array(length: any): Uint8Array;
-    readInt16Array(length: any): Int16Array;
-    readUint16Array(length: any): Int16Array;
-    readUint32Array(length: any): Uint32Array;
-    readInt32Array(length: any): Int32Array;
-}
 export class DataStream {
     constructor(arrayBuffer: ArrayBuffer | DataView | number, byteOffset?: number | undefined, endianness?: boolean | undefined);
     getPosition(): number;
@@ -610,191 +579,6 @@ export class DataStream {
       */
     mapFloat32Array(length: number, e: boolean | null): Object;
 }
-export class MultiBufferStream {
-    constructor(buffer: ArrayBuffer);
-    /************************************************************************************
-      Methods for the managnement of the buffers (insertion, removal, concatenation, ...)
-     ***********************************************************************************/
-    initialized(): boolean;
-    buffer: any;
-    bufferIndex: number | undefined;
-    /**
-     * Reduces the size of a given buffer, but taking the part between offset and offset+newlength
-     * @param  {ArrayBuffer} buffer
-     * @param  {Number}      offset    the start of new buffer
-     * @param  {Number}      newLength the length of the new buffer
-     * @return {ArrayBuffer}           the new buffer
-     */
-    reduceBuffer(buffer: ArrayBuffer, offset: number, newLength: number): ArrayBuffer;
-    /**
-     * Inserts the new buffer in the sorted list of buffers,
-     *  making sure, it is not overlapping with existing ones (possibly reducing its size).
-     *  if the new buffer overrides/replaces the 0-th buffer (for instance because it is bigger),
-     *  updates the DataStream buffer for parsing
-     */
-    insertBuffer(ab: any): void;
-    /**
-     * Displays the status of the buffers (number and used bytes)
-     * @param  {Object} info callback method for display
-     */
-    logBufferLevel(info: Object): void;
-    cleanBuffers(): void;
-    mergeNextBuffer(): boolean;
-    /*************************************************************************
-      Seek-related functions
-     *************************************************************************/
-    /**
-     * Finds the buffer that holds the given file position
-     * @param  {Boolean} fromStart    indicates if the search should start from the current buffer (false)
-     *                                or from the first buffer (true)
-     * @param  {Number}  filePosition position in the file to seek to
-     * @param  {Boolean} markAsUsed   indicates if the bytes in between the current position and the seek position
-     *                                should be marked as used for garbage collection
-     * @return {Number}               the index of the buffer holding the seeked file position, -1 if not found.
-     */
-    findPosition(fromStart: boolean, filePosition: number, markAsUsed: boolean): number;
-    /**
-     * Finds the largest file position contained in a buffer or in the next buffers if they are contiguous (no gap)
-     * starting from the given buffer index or from the current buffer if the index is not given
-     *
-     * @param  {Number} inputindex Index of the buffer to start from
-     * @return {Number}            The largest file position found in the buffers
-     */
-    findEndContiguousBuf(inputindex: number): number;
-    /**
-     * Returns the largest file position contained in the buffers, larger than the given position
-     * @param  {Number} pos the file position to start from
-     * @return {Number}     the largest position in the current buffer or in the buffer and the next contiguous
-     *                      buffer that holds the given position
-     */
-    getEndFilePositionAfter(pos: number): number;
-    /*************************************************************************
-      Garbage collection related functions
-     *************************************************************************/
-    /**
-     * Marks a given number of bytes as used in the current buffer for garbage collection
-     * @param {Number} nbBytes
-     */
-    addUsedBytes(nbBytes: number): void;
-    /**
-     * Marks the entire current buffer as used, ready for garbage collection
-     */
-    setAllUsedBytes(): void;
-    /*************************************************************************
-      Common API between MultiBufferStream and SimpleStream
-     *************************************************************************/
-    /**
-     * Tries to seek to a given file position
-     * if possible, repositions the parsing from there and returns true
-     * if not possible, does not change anything and returns false
-     * @param  {Number}  filePosition position in the file to seek to
-     * @param  {Boolean} fromStart    indicates if the search should start from the current buffer (false)
-     *                                or from the first buffer (true)
-     * @param  {Boolean} markAsUsed   indicates if the bytes in between the current position and the seek position
-     *                                should be marked as used for garbage collection
-     * @return {Boolean}              true if the seek succeeded, false otherwise
-     */
-    seek(filePosition: number, fromStart: boolean, markAsUsed: boolean): boolean;
-    position: number | undefined;
-    /**
-     * Returns the current position in the file
-     * @return {Number} the position in the file
-     */
-    getPosition(): number;
-    /**
-     * Returns the length of the current buffer
-     * @return {Number} the length of the current buffer
-     */
-    getLength(): number;
-    getEndPosition(): any;
-}
-export function MPEG4DescriptorParser(): this;
-export class MPEG4DescriptorParser {
-    getDescriptorName: (tag: any) => any;
-    parseOneDescriptor: (stream: any) => any;
-}
-export namespace BoxParser {
-    let TKHD_FLAG_ENABLED: number;
-    let TKHD_FLAG_IN_MOVIE: number;
-    let TKHD_FLAG_IN_PREVIEW: number;
-    let TFHD_FLAG_BASE_DATA_OFFSET: number;
-    let TFHD_FLAG_SAMPLE_DESC: number;
-    let TFHD_FLAG_SAMPLE_DUR: number;
-    let TFHD_FLAG_SAMPLE_SIZE: number;
-    let TFHD_FLAG_SAMPLE_FLAGS: number;
-    let TFHD_FLAG_DUR_EMPTY: number;
-    let TFHD_FLAG_DEFAULT_BASE_IS_MOOF: number;
-    let TRUN_FLAGS_DATA_OFFSET: number;
-    let TRUN_FLAGS_FIRST_FLAG: number;
-    let TRUN_FLAGS_DURATION: number;
-    let TRUN_FLAGS_SIZE: number;
-    let TRUN_FLAGS_FLAGS: number;
-    let TRUN_FLAGS_CTS_OFFSET: number;
-    function parseUUID(stream: any): any;
-    function parseHex16(stream: any): string;
-    function parseOneBox(stream: any, headerOnly: any, parentSize: any): {
-        code: number;
-        type?: undefined;
-        size?: undefined;
-        hdr_size?: undefined;
-        start?: undefined;
-        box?: undefined;
-    } | {
-        code: number;
-        type: any;
-        size: any;
-        hdr_size: number;
-        start: any;
-        box?: undefined;
-    } | {
-        code: number;
-        box: any;
-        size: any;
-        type?: undefined;
-        hdr_size?: undefined;
-        start?: undefined;
-    };
-    let SAMPLE_ENTRY_TYPE_VISUAL: string;
-    let SAMPLE_ENTRY_TYPE_AUDIO: string;
-    let SAMPLE_ENTRY_TYPE_HINT: string;
-    let SAMPLE_ENTRY_TYPE_METADATA: string;
-    let SAMPLE_ENTRY_TYPE_SUBTITLE: string;
-    let SAMPLE_ENTRY_TYPE_SYSTEM: string;
-    let SAMPLE_ENTRY_TYPE_TEXT: string;
-    class SingleItemTypeReferenceBox {
-        private constructor();
-        parse(stream: any): void;
-    }
-    class SingleItemTypeReferenceBoxLarge {
-        private constructor();
-        parse(stream: any): void;
-    }
-    class TrackReferenceTypeBox {
-        private constructor();
-        parse(stream: any): void;
-        write(stream: any): void;
-    }
-    function decimalToHex(d: any, padding: any): string;
-    let DIFF_BOXES_PROP_NAMES: string[];
-    let DIFF_PRIMITIVE_ARRAY_PROP_NAMES: string[];
-    function boxEqualFields(box_a: any, box_b: any): boolean;
-    function boxEqual(box_a: any, box_b: any): boolean;
-}
-export class XMLSubtitlein4Parser {
-    parseSample(sample: any): {
-        resources: any[];
-        documentString: any;
-        document: Document;
-    };
-}
-export class Textin4Parser {
-    parseSample(sample: any): any;
-    parseConfig(data: any): any;
-}
-export class VTTin4Parser {
-    parseSample(data: any): any[];
-    getText(startTime: any, endTime: any, data: any): string;
-}
 export class ISOFile {
     private constructor();
     initialize(stream: any): void;
@@ -1015,13 +799,18 @@ export class ISOFile {
     initializeSegmentation(): InitSegs[];
     print(output: any): void;
 }
-/**
- *
- * @param {boolean=} _keepMdatData Boolean indicating if bytes containing media data should be kept in memory
- * @param {MultiBufferStream=} _stream
- * @returns {ISOFile}
- */
-export function createFile(_keepMdatData?: boolean | undefined, _stream?: MultiBufferStream | undefined): ISOFile;
+export namespace MP4Box {
+    /**
+     * @typedef {InstanceType<typeof ISOFile>} ISOFileInstance
+     */
+    /**
+     *
+     * @param {boolean} [_keepMdatData] Boolean indicating if bytes containing media data should be kept in memory
+     * @param {any} [_stream]
+     * @returns {ISOFileInstance}
+     */
+    function createFile(_keepMdatData?: boolean | undefined, _stream?: any): any;
+}
 declare var ArrayBuffer: ArrayBufferConstructor;
 interface ArrayBuffer {
     readonly byteLength: number;
