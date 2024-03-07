@@ -19,11 +19,12 @@ const config = {
 
 function App() {
   const [controls, setControls] = useState<Partial<PlayerControls>>({});
-  const vidRef = useRef(null);
+  const vidRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     // const transcoder = new Transcoder({ enableLogs: true, dist: "esm" });
     // transcoder.load();
+    if (!vidRef.current) return;
     const downloader = new Downloader(vidRef.current);
     downloader.setCustomTotalLength(28884979); // 28884979 = length of the test AirBnB mp4 file. This is needed because that test file's Content-Range header is not exposed by the server.
     const mp4boxPlayerInstance = //
