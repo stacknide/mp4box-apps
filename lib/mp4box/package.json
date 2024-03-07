@@ -1,10 +1,10 @@
 {
   "name": "@knide/mp4box",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/mp4box.all.js",
-  "types": "dist/mp4box.all.d.ts",
+  "types": "dist/mp4box.all",
   "description": "Modified version of mp4box.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
