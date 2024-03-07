@@ -1,6 +1,6 @@
 {
   "name": "@knide/mp4box",
-  "version": "1.0.4",
+  "version": "1.0.11",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/mp4box.all.js",
