@@ -4,7 +4,7 @@ import {
   // Textin4Parser,
   // VTTin4Parser,
   // XMLSubtitlein4Parser,
-  createFile,
+  MP4Box,
 } from "@knide/mp4box";
 import type { ISOFile } from "@knide/mp4box";
 import { Downloader } from "./Downloader";
@@ -25,6 +25,7 @@ import type {
   TTrackInfo,
   Mp4boxSourceBuffer,
   TrackKey,
+  PlayerControls,
 } from "./types";
 
 const defaultConfig: TConfig = {
@@ -57,7 +58,7 @@ export class Mp4boxPlayer {
   ) {
     this.config = { ...defaultConfig, ...initialDownloadConfig };
 
-    this.mp4boxfile = createFile();
+    this.mp4boxfile = MP4Box.createFile();
     this.movieInfo = null;
 
     if (!videoElement) throw new Error("No video element provided");
@@ -357,7 +358,7 @@ export class Mp4boxPlayer {
       return;
     }
 
-    this.mp4boxfile = createFile();
+    this.mp4boxfile = MP4Box.createFile();
     if (!this.mp4boxfile) throw new Error("mp4boxfile ISOFile not created");
 
     this.addVideoEventListeners();
@@ -736,7 +737,7 @@ export class Mp4boxPlayer {
     var codec = mp4track.codec;
     var mime = 'video/mp4; codecs="' + codec + '"';
     var kind = mp4track.kind;
-    var trackDefault;
+    // var trackDefault;
     // var trackDefaultSupport = typeof TrackDefault !== "undefined"; // TODO:
     var html5TrackKind = "";
     if (codec == "wvtt") {
@@ -926,7 +927,7 @@ export class Mp4boxPlayer {
    * Get player controls.
    * @returns {PlayerControls} - Player controls.
    */
-  getControls() {
+  getControls(): PlayerControls {
     return {
       play: this.play,
       stop: this.stop,
