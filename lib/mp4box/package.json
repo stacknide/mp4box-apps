@@ -4,9 +4,12 @@
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/mp4box.all.js",
+  "types": "dist/mp4box.all.d.ts",
   "description": "Modified version of mp4box.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "tsc -w"
   },
   "repository": {
     "type": "git",
