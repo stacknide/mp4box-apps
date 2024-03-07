@@ -1,8 +1,116 @@
+export type setLogLevel = (level: number) => any;
+export type LoggerMethod = (module: string, ...msg: any[]) => any;
+export type Logger = {
+    setLogLevel: setLogLevel;
+    debug: LoggerMethod;
+    info: LoggerMethod;
+    warn: LoggerMethod;
+    error: LoggerMethod;
+    getDurationString: GetDurationString;
+    printRanges: PrintRanges;
+};
+/**
+ * Helper function to print a duration value in the form H:MM:SS.MS
+ * Gets the duration string.
+ */
+export type GetDurationString = (duration: number, divisor?: number | undefined) => string;
+/**
+ * Helper function to stringify HTML5 TimeRanges objects
+ */
+export type PrintRanges = (ranges: TimeRanges) => string;
+export type Segment = {
+    /**
+     * - The ID of the segment.
+     */
+    id: string;
+    /**
+     * - The buffer containing the segment data.
+     */
+    buffer: Buffer;
+    /**
+     * - The sample number.
+     */
+    sampleNum: number;
+    /**
+     * - Indicates if the segment is the last one.
+     */
+    is_last: boolean;
+};
+export type SegmentList = Segment[];
+export type Mp4boxVideoElementExtras = {
+    /**
+     * - Indicates if the video is currently playing.
+     */
+    playing?: boolean | undefined;
+    /**
+     * - The timestamp of the last seek operation.
+     */
+    lastSeekTime?: number | undefined;
+    /**
+     * - An array of video track information.
+     */
+    videoTracks?: any[] | undefined;
+    /**
+     * - An array of audio track information.
+     */
+    audioTracks?: any[] | undefined;
+    /**
+     * - The associated Mp4boxMediaSource.
+     */
+    ms?: Mp4boxMediaSource | undefined;
+};
+export type Mp4boxVideoElement = Mp4boxVideoElementExtras & HTMLVideoElement;
+export type Mp4boxMediaSourceExtras = {
+    /**
+     * - The associated Mp4boxVideoElement.
+     */
+    video?: Mp4boxVideoElement | undefined;
+    pendingInits?: number | undefined;
+};
+export type Mp4boxMediaSource = Mp4boxMediaSourceExtras & MediaSource;
+export type Mp4boxSourceBufferExtras = {
+    /**
+     * - The ID of the source buffer.
+     */
+    id?: string | undefined;
+    /**
+     * - The Mp4boxMediaSource associated with the source buffer.
+     */
+    ms?: Mp4boxMediaSource | undefined;
+    segmentIndex?: number | undefined;
+    sampleNum?: number | undefined;
+    is_last?: boolean | undefined;
+    pendingAppends?: SegmentList | undefined;
+};
+export type Mp4boxSourceBuffer = Mp4boxSourceBufferExtras & SourceBuffer;
+export type InitSegs = {
+    id: number;
+    user: Mp4boxSourceBuffer;
+    buffer: Buffer;
+};
+/**
+ * @callback setLogLevel
+ * @param {number} level
+ *
+ * @callback LoggerMethod
+ * @param {string} module - The module name.
+ * @param {...any} msg - The log message.
+ *
+ *
+ * @typedef {Object} Logger
+ * @property {setLogLevel} setLogLevel
+ * @property {LoggerMethod} debug
+ * @property {LoggerMethod} info
+ * @property {LoggerMethod} warn
+ * @property {LoggerMethod} error
+ * @property {GetDurationString} getDurationString
+ * @property {PrintRanges} printRanges
+ */
 /**
  * A logging utility for managing log levels and outputting log messages.
- * @type {Object}
+ * @type {Logger}
  */
-export var Log: Object;
+export var Log: Logger;
 export class MP4BoxStream {
     private constructor();
     /*************************************************************************
@@ -36,8 +144,8 @@ export class MP4BoxStream {
     readInt32Array(length: any): Int32Array;
 }
 export class DataStream {
-    private constructor();
-    getPosition(): any;
+    constructor(arrayBuffer: ArrayBuffer | DataView | number, byteOffset?: number | undefined, endianness?: boolean | undefined);
+    getPosition(): number;
     /**
       Internal function to resize the DataStream buffer when required.
       @param {number} extra Number of bytes to add to the buffer allocation.
@@ -56,8 +164,8 @@ export class DataStream {
       */
     _trimAlloc(): null;
     get byteLength(): number;
-    set byteOffset(value: any);
-    get byteOffset(): any;
+    set byteOffset(value: number);
+    get byteOffset(): number;
     set dataView(value: any);
     get dataView(): any;
     /**
@@ -68,7 +176,7 @@ export class DataStream {
       @return {null}
       */
     seek(pos: number): null;
-    position: any;
+    position: number | undefined;
     /**
       Returns true if the DataStream seek pointer is at the end of buffer and
       there's no more data to read.
@@ -228,9 +336,9 @@ export class DataStream {
       @return {string} The read string.
      */
     readCString(length: number | null): string;
-    readInt64(): any;
-    readUint64(): any;
-    readUint24(): any;
+    readInt64(): number;
+    readUint64(): number;
+    readUint24(): number;
     /**
       Saves the DataStream contents to the given filename.
       Uses Chrome's anchor download property to initiate download.
@@ -246,8 +354,8 @@ export class DataStream {
       @type {boolean}
       */
     _dynamicSize: boolean;
-    set dynamicSize(value: any);
-    get dynamicSize(): any;
+    set dynamicSize(value: boolean);
+    get dynamicSize(): boolean;
     /**
       Internal function to trim the DataStream buffer when required.
       Used for stripping out the first bytes when not needed anymore.
@@ -503,13 +611,13 @@ export class DataStream {
     mapFloat32Array(length: number, e: boolean | null): Object;
 }
 export class MultiBufferStream {
-    private constructor();
+    constructor(buffer: ArrayBuffer);
     /************************************************************************************
       Methods for the managnement of the buffers (insertion, removal, concatenation, ...)
      ***********************************************************************************/
     initialized(): boolean;
     buffer: any;
-    bufferIndex: any;
+    bufferIndex: number | undefined;
     /**
      * Reduces the size of a given buffer, but taking the part between offset and offset+newlength
      * @param  {ArrayBuffer} buffer
@@ -689,21 +797,81 @@ export class VTTin4Parser {
 }
 export class ISOFile {
     private constructor();
+    initialize(stream: any): void;
+    /** MutiBufferStream object used to parse boxes */
+    stream: any;
+    /** @type {Array} Array of all boxes (in order) found in the file */
+    boxes: any[] | undefined;
+    /** @type {Array} Array of all mdats */
+    mdats: any[] | undefined;
+    /** @type {Array} Array of all moofs */
+    moofs: any[] | undefined;
+    /** @type {Boolean} Boolean indicating if the file is compatible with progressive parsing (moov first) */
+    isProgressive: boolean | undefined;
+    /** @type {Boolean} Boolean used to fire moov start event only once */
+    moovStartFound: boolean | undefined;
+    /** @type {Function} Callback called when the moov parsing starts */
+    onMoovStart: Function | undefined;
+    /** @type {Boolean} Boolean keeping track of the call to onMoovStart, to avoid double calls */
+    moovStartSent: boolean | undefined;
+    /** @type {Function} Callback called when the moov is entirely parsed */
+    onReady: Function | undefined;
+    /** @type {Boolean} Boolean keeping track of the call to onReady, to avoid double calls */
+    readySent: boolean | undefined;
+    /**
+     * Callback function type for handling segment events.
+     * @callback OnSegment
+     * @param {string} id - The ID of the segment.
+     * @param {Mp4boxSourceBuffer} user - The user of the segment.
+     * @param {Buffer} buffer - The buffer containing the segment data.
+     * @param {number} sampleNum - The sample number.
+     * @param {boolean} is_last - Indicates if this is the last segment.
+     *
+     * @type {OnSegment}
+     */
+    onSegment: ((id: string, user: Mp4boxSourceBuffer, buffer: Buffer, sampleNum: number, is_last: boolean) => any) | undefined;
+    /** @type {Function} Callback to call when samples are ready */
+    onSamples: Function | undefined;
+    /** @type {Function} Callback to call when there is an error in the parsing or processing of samples */
+    onError: Function | undefined;
+    /** @type {Boolean} Boolean indicating if the moov box run-length encoded tables of sample information have been processed */
+    sampleListBuilt: boolean | undefined;
+    /** @type {Array} Array of Track objects for which fragmentation of samples is requested */
+    fragmentedTracks: any[] | undefined;
+    /** @type {Array} Array of Track objects for which extraction of samples is requested */
+    extractedTracks: any[] | undefined;
+    /** @type {Boolean} Boolean indicating that fragmention is ready */
+    isFragmentationInitialized: boolean | undefined;
+    /** @type {Boolean} Boolean indicating that fragmented has started */
+    sampleProcessingStarted: boolean | undefined;
+    /** @type {Number} Number of the next 'moof' to generate when fragmenting */
+    nextMoofNumber: number | undefined;
+    /** @type {Boolean} Boolean indicating if the initial list of items has been produced */
+    itemListBuilt: boolean | undefined;
+    /**
+     * @callback OnSidx Callback called when the sidx box is entirely parsed
+     * @param {any} sidx
+     *
+     * @type {OnSidx}
+     */
+    onSidx: ((sidx: any) => any) | undefined;
+    /** @type {Boolean} Boolean keeping track of the call to onSidx, to avoid double calls */
+    sidxSent: boolean | undefined;
+    /**
+     * @callback OnItem
+     * @param {any} item
+     *
+     * @type {OnItem}
+     */
+    onItem: ((item: any) => any) | undefined;
     setSegmentOptions(id: any, user: any, options: any): void;
     unsetSegmentOptions(id: any): void;
     setExtractionOptions(id: any, user: any, options: any): void;
     unsetExtractionOptions(id: any): void;
     parse(): void;
-    moovStartFound: boolean | undefined;
-    isProgressive: boolean | undefined;
     checkBuffer(ab: any): boolean;
     appendBuffer(ab: any, last: any): any;
-    moovStartSent: boolean | undefined;
-    sampleListBuilt: boolean | undefined;
-    readySent: boolean | undefined;
     nextSeekPosition: any;
-    sidxSent: boolean | undefined;
-    itemListBuilt: boolean | undefined;
     getInfo(): {
         hasMoov: boolean;
         duration: any;
@@ -731,7 +899,6 @@ export class ISOFile {
     getTrackSample(track_id: any, number: any): any;
     releaseUsedSamples(id: any, sampleNum: any): void;
     start(): void;
-    sampleProcessingStarted: boolean | undefined;
     stop(): void;
     flush(): void;
     seekTrack(time: any, useRap: any, trak: any): {
@@ -805,13 +972,56 @@ export class ISOFile {
     write(outstream: any): void;
     createFragment(track_id: any, sampleNumber: any, stream_: any): any;
     save(name: any): void;
-    getBuffer(): any;
-    initializeSegmentation(): {}[];
-    isFragmentationInitialized: boolean | undefined;
-    nextMoofNumber: number | undefined;
+    getBuffer(): ArrayBuffer | undefined;
+    /**
+     * @typedef {Object} Segment
+     * @property {string} id - The ID of the segment.
+     * @property {Buffer} buffer - The buffer containing the segment data.
+     * @property {number} sampleNum - The sample number.
+     * @property {boolean} is_last - Indicates if the segment is the last one.
+     *
+     * @typedef {Segment[]} SegmentList
+     *
+     * @typedef {Object} Mp4boxVideoElementExtras
+     * @property {boolean} [playing] - Indicates if the video is currently playing.
+     * @property {number} [lastSeekTime] - The timestamp of the last seek operation.
+     * @property {any[]} [videoTracks] - An array of video track information.
+     * @property {any[]} [audioTracks] - An array of audio track information.
+     * @property {Mp4boxMediaSource} [ms] - The associated Mp4boxMediaSource.
+     * @typedef {Mp4boxVideoElementExtras & HTMLVideoElement} Mp4boxVideoElement
+     *
+     * @typedef {Object} Mp4boxMediaSourceExtras
+     * @property {Mp4boxVideoElement} [video] - The associated Mp4boxVideoElement.
+     * @property {number} [pendingInits]
+     * @typedef {Mp4boxMediaSourceExtras & MediaSource} Mp4boxMediaSource
+     *
+     * @typedef {Object} Mp4boxSourceBufferExtras
+     * @property {string} [id] - The ID of the source buffer.
+     * @property {Mp4boxMediaSource} [ms] - The Mp4boxMediaSource associated with the source buffer.
+     * @property {number} [segmentIndex]
+     * @property {number} [sampleNum]
+     * @property {boolean} [is_last]
+     * @property {SegmentList} [pendingAppends]
+     * @typedef {Mp4boxSourceBufferExtras & SourceBuffer} Mp4boxSourceBuffer
+     *
+     * @typedef {Object} InitSegs
+     * @property {number} id
+     * @property {Mp4boxSourceBuffer} user
+     * @property {Buffer} buffer
+     */
+    /**
+     * @returns {InitSegs[]} An array of initialization segments.
+     */
+    initializeSegmentation(): InitSegs[];
     print(output: any): void;
 }
-export function createFile(_keepMdatData: any, _stream: any): any;
+/**
+ *
+ * @param {boolean=} _keepMdatData Boolean indicating if bytes containing media data should be kept in memory
+ * @param {MultiBufferStream=} _stream
+ * @returns {ISOFile}
+ */
+export function createFile(_keepMdatData?: boolean | undefined, _stream?: MultiBufferStream | undefined): ISOFile;
 declare var ArrayBuffer: ArrayBufferConstructor;
 interface ArrayBuffer {
     readonly byteLength: number;
