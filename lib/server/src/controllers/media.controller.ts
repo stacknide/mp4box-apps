@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -12,6 +13,8 @@ export class MediaController {
       const fileSize = stat.size;
       const range = req.headers.range;
 
+      const mimeType = getMimeType(videoFilePath) || 'video/mp4';
+
       if (range) {
         const [start, end] = range.replace(/bytes=/, '').split('-');
         const startByte = parseInt(start, 10);
@@ -24,14 +27,15 @@ export class MediaController {
           'Content-Range': `bytes ${startByte}-${endByte}/${fileSize}`,
           'Accept-Ranges': 'bytes',
           'Content-Length': chunkSize,
-          'Content-Type': 'video/mp4',
+          'Content-Type': mimeType,
+          'Access-Control-Expose-Headers': 'Content-Range',
         });
 
         fileStream.pipe(res);
       } else {
         res.writeHead(200, {
           'Content-Length': fileSize,
-          'Content-Type': 'video/mp4',
+          'Content-Type': mimeType,
         });
 
         fs.createReadStream(videoFilePath).pipe(res);
@@ -41,3 +45,37 @@ export class MediaController {
     }
   };
 }
+
+const getMimeType = (filePath: string) => {
+  const platform = process.platform;
+
+  if (['aix', 'darwin', 'freebsd', 'linux', 'openbsd', 'sunos'].includes(platform)) {
+    // console.log(`${platform} Platform`);
+
+    // Determine MIME type for Unix-like platforms
+    try {
+      const commandOutput = execSync(`file --mime-type -b "${filePath}"`, { encoding: 'utf8' });
+      const mimeType = commandOutput.trim();
+      return mimeType;
+    } catch (error) {
+      console.error('Error:', error);
+      return '';
+    }
+  } else if (platform === 'win32') {
+    // console.log('Windows Platform');
+
+    // Determine MIME type for Windows
+    try {
+      const commandOutput = execSync(`certutil -hashfile "${filePath}" | findstr /i "hash"`, { encoding: 'utf8' });
+      const hashInfo = commandOutput.trim();
+      console.log('Hash Info:', hashInfo);
+      return hashInfo;
+    } catch (error) {
+      console.error('Error:', error);
+      return '';
+    }
+  } else {
+    console.log('Unknown Platform - cannot determine MIME type');
+    return '';
+  }
+};

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
-import { useAtom } from "jotai";
-import { configAtom } from "./ConfigModifier/atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { configAtom, formatAtom } from "./ConfigModifier/atoms";
 
 export function Player() {
   const [config] = useAtom(configAtom);
@@ -19,9 +19,14 @@ export function Player() {
 
   const vidRef = useRef(null);
 
+  const format = useAtomValue(formatAtom);
   useEffect(() => {
     const downloader = new Downloader(vidRef.current);
-    downloader.setCustomTotalLength(28884979); // 28884979 = length of the test AirBnB mp4 file. This is needed because that test file's Content-Range header is not exposed by the server.
+
+    const shouldSetCustomLength =
+      format === "hosted-online" && config.url.includes("Paris-P1-1.mp4");
+    if (shouldSetCustomLength) downloader.setCustomTotalLength(28884979); // 28884979 = length of the test AirBnB mp4 file. This is needed because that test file's Content-Range header is not exposed by the server.
+
     downloader.setRealTime(true);
     const mp4boxPlayerInstance = //
       new Mp4boxPlayer(vidRef.current, config, downloader);
