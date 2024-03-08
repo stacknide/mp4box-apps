@@ -1,8 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
+import { useAtom } from "jotai";
+import { configAtom } from "./ConfigModifier/atoms";
 
-export function Player({ config = {} }) {
+export function Player() {
+  const [config] = useAtom(configAtom);
+
   const [controls, setControls] = useState<Partial<PlayerControls>>({});
+  const {
+    play,
+    load,
+    // initializeAllSourceBuffers,
+    // initializeSourceBuffers,
+    // start,
+    // stop,
+    // reset,
+  } = controls;
+
   const vidRef = useRef(null);
 
   useEffect(() => {
@@ -13,17 +27,11 @@ export function Player({ config = {} }) {
       new Mp4boxPlayer(vidRef.current, config, downloader);
 
     setControls(mp4boxPlayerInstance.getControls());
-  }, []);
 
-  const {
-    play,
-    load,
-    // i.nitializeAllSourceBuffers,
-    // initializeSourceBuffers,
-    // start,
-    // stop,
-    // reset,
-  } = controls;
+    return () => {
+      mp4boxPlayerInstance.stop();
+    };
+  }, []);
 
   return (
     <>
