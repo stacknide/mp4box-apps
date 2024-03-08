@@ -112,3 +112,8 @@ trackinfo table tr th,
 #sampletable table tr th {
   width: 1px;
 }
+
+#tabs-1 fieldset {
+  display: flex;
+  gap: 10px;
+}
