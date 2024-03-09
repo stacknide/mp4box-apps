@@ -10,10 +10,14 @@ export class MediaBlocksDto {
   public fileName: string;
 
   @IsInt()
-  @Min(0)
-  public start: number;
+  @Min(1)
+  public startBlockNum: number;
 
   @IsInt()
-  @Min(0)
-  public end: number;
+  @Min(1)
+  public endBlockNum: number;
+
+  @IsInt()
+  @Min(1)
+  public blockSize: number;
 }

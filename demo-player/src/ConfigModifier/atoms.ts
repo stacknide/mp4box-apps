@@ -11,5 +11,11 @@ export const defaultConfig = {
 export const configAtom = atomWithStorage("config", defaultConfig);
 
 export const NO_EXT = "no-file-extension-found";
-export const getDefaultFormat = () => defaultConfig.url.split(".").pop() || NO_EXT;
+export const getDefaultFormat = () =>
+  defaultConfig.url.split(".").pop() || NO_EXT;
 export const formatAtom = atomWithStorage("format", getDefaultFormat());
+
+export const shouldUseCustomFetcherAtom = atomWithStorage(
+  "shouldUseCustomFetcher",
+  true
+);
