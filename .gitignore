@@ -1,4 +1,3 @@
 .dump/
 node_modules/
-lib/server/src/static/
 .DS_Store
