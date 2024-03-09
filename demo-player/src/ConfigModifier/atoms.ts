@@ -12,9 +12,7 @@ export const defaultConfig = {
 };
 
 export const configAtom = atomWithStorage("config", defaultConfig);
-export const blockSizeAtom = atom(
-  (get) => 65536 * get(configAtom).dataShardCount
-);
+export const blockSizeAtom = atom((get) => 65536 * get(configAtom).dataShardCount);
 
 export const NO_EXT = "no-file-extension-found";
 export const getDefaultFormat = () =>
@@ -23,5 +21,5 @@ export const formatAtom = atomWithStorage("format", getDefaultFormat());
 
 export const shouldUseCustomFetcherAtom = atomWithStorage(
   "shouldUseCustomFetcher",
-  true
+  false
 );

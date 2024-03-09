@@ -1,6 +1,11 @@
 import { useAtom } from "jotai";
 import { useEffect, useMemo } from "react";
-import { NO_EXT, configAtom, formatAtom } from "./atoms";
+import {
+  NO_EXT,
+  configAtom,
+  formatAtom,
+  shouldUseCustomFetcherAtom,
+} from "./atoms";
 
 const videoNameList = [
   "3gp.3gp",
@@ -24,28 +29,34 @@ const videoNameList = [
   "recording.mp4",
 ];
 
-const groupByFormat = () => {
-  const groups: { [key: string]: string[] } = {};
-  videoNameList.forEach((name) => {
-    const ext = name.split(".").pop() || NO_EXT;
-    if (!groups[ext]) groups[ext] = [];
-    groups[ext].push(name);
-  });
-  groups["hosted-online"] = [
-    "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4",
-  ];
-  const groupKeys = Object.keys(groups);
-  return [groups, groupKeys] as const;
-};
-
 const localBaseUrl = "http://localhost:3000/media/range";
 
 export function FileSelector() {
   const [config, setConfig] = useAtom(configAtom);
   const [format, setFormat] = useAtom(formatAtom);
 
-  const [groups, allFormats] = useMemo(() => groupByFormat(), []);
-  const fileList = groups[format];
+  const [shouldUseCustomFetcher] = useAtom(shouldUseCustomFetcherAtom);
+
+  const [groups, allFormats] = useMemo(() => {
+    const groupByFormat = () => {
+      const groups: { [key: string]: string[] } = {};
+      videoNameList.forEach((name) => {
+        const ext = name.split(".").pop() || NO_EXT;
+        if (!groups[ext]) groups[ext] = [];
+        groups[ext].push(name);
+      });
+
+      if (!shouldUseCustomFetcher)
+        groups["hosted-online"] = [
+          "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4",
+        ];
+
+      const groupKeys = Object.keys(groups);
+      return [groups, groupKeys] as const;
+    };
+    return groupByFormat();
+  }, [shouldUseCustomFetcher]);
+  const fileList = groups[format] || [];
   useEffect(() => {
     const formatFileList = groups[format];
     if (formatFileList) {
@@ -54,8 +65,12 @@ export function FileSelector() {
         ? formatFileList[0]
         : `${localBaseUrl}/${formatFileList[0]}`;
       setConfig({ ...config, url });
+    } else {
+      // reset to default
+      setFormat("mp4");
+      setConfig({ ...config, url: `${localBaseUrl}/airbnb.mp4` });
     }
-  }, [format]);
+  }, [format, groups]);
 
   const selectedFileName = config.url.split("/").pop() || "";
 

@@ -5,15 +5,73 @@ import {
   defaultConfig,
   formatAtom,
   getDefaultFormat,
+  shouldUseCustomFetcherAtom,
 } from "./atoms";
 
 export function ConfigModifier() {
   const [config, setConfig] = useAtom(configAtom);
   const [, setFormat] = useAtom(formatAtom);
+  const [shouldUseCustomFetcher] = useAtom(shouldUseCustomFetcherAtom);
 
   return (
-    <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+    <div className="config-modifier-root">
       <FileSelector />
+
+      {shouldUseCustomFetcher ? (
+        <>
+          <label>
+            Data Shard count
+            <select
+              value={config.chunkSize}
+              onChange={(e) =>
+                setConfig({ ...config, chunkSize: Number(e.target.value) })
+              }
+            >
+              {[
+                [10, "main-net"],
+                [4, "dev-net"],
+              ].map(([shardCount, network]) => {
+                return (
+                  <option key={"shardCounr" + shardCount} value={shardCount}>
+                    {shardCount} ({network} emulation)
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+          <label>
+            number of blocks per segment
+            <input
+              type="number"
+              value={config.numOfBlocks}
+              min={1}
+              max={32}
+              onChange={(e) =>
+                setConfig({ ...config, numOfBlocks: Number(e.target.value) })
+              }
+            />
+          </label>
+        </>
+      ) : (
+        <label>
+          Chunk Size
+          <select
+            value={config.chunkSize}
+            onChange={(e) =>
+              setConfig({ ...config, chunkSize: Number(e.target.value) })
+            }
+          >
+            {Object.entries(chunkSizes).map(([key, value]) => {
+              return (
+                <option key={"csz" + key} value={value}>
+                  {key}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+      )}
+
       <label>
         Segment Size
         <input
@@ -23,23 +81,6 @@ export function ConfigModifier() {
             setConfig({ ...config, segmentSize: Number(e.target.value) })
           }
         />
-      </label>
-      <label>
-        Chunk Size
-        <select
-          value={config.chunkSize}
-          onChange={(e) =>
-            setConfig({ ...config, chunkSize: Number(e.target.value) })
-          }
-        >
-          {Object.entries(chunkSizes).map(([key, value]) => {
-            return (
-              <option key={"csz" + key} value={value}>
-                {key}
-              </option>
-            );
-          })}
-        </select>
       </label>
       <label>
         Chunk Timeout

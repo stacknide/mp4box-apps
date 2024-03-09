@@ -117,3 +117,15 @@ trackinfo table tr th,
   display: flex;
   gap: 10px;
 }
+
+.config-modifier-root {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.config-modifier-root label {
+  display: grid;
+}
