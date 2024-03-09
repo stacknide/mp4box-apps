@@ -4,19 +4,21 @@ import {
   getFileSize,
   sliceByteRangeFromBlockData,
 } from "./utils";
-import { configAtom, formatAtom } from "../ConfigModifier/atoms";
+import { blockSizeAtom, configAtom, formatAtom } from "../ConfigModifier/atoms";
 import { useEffect, useRef } from "react";
 
 export const useCustomBufferFetcher = (downloadUptoEnd = true) => {
   const config = useAtomValue(configAtom);
+  const blockSize = useAtomValue(blockSizeAtom);
 
   const downloadBlocks = async (startBlockNum: number, endBlockNum: number) => {
     const fileName = config.url.split("/").pop();
-    const blockSize = config.chunkSize;
+    const dataShardCount = config.dataShardCount;
+    const json = { fileName, startBlockNum, endBlockNum, dataShardCount };
     const res = await fetch("http://localhost:3000/media/blocks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileName, startBlockNum, endBlockNum, blockSize }),
+      body: JSON.stringify(json),
     });
 
     const uint8Data = new Uint8Array(await res.arrayBuffer());
@@ -24,7 +26,6 @@ export const useCustomBufferFetcher = (downloadUptoEnd = true) => {
   };
 
   const downloadByteRange = async (startByte: number, endByte: number) => {
-    const blockSize = config.chunkSize;
     const [blockRange, sliceIndices] = //
       getByteRangeToBlockNumberRange(startByte, endByte, blockSize);
     const blockData = await downloadBlocks(...blockRange);

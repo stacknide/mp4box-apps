@@ -52,7 +52,8 @@ export class MediaController {
   };
 
   public blocksRangeRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { fileName, startBlockNum, endBlockNum, blockSize } = req.body;
+    const { fileName, startBlockNum, endBlockNum, dataShardCount } = req.body;
+    const blockSize = dataShardCount * 65536;
 
     try {
       const { stat, path } = this.getVideoDetails(fileName);
@@ -62,7 +63,7 @@ export class MediaController {
       const draftStartByte = (startBlockNum - 1) * blockSize;
       const draftEndByte = endBlockNum * blockSize - 1;
       const startByte = Math.max(0, draftStartByte);
-      const endByte = Math.min(draftEndByte, fileSize);
+      const endByte = Math.min(draftEndByte, fileSize - 1);
 
       const fileStream = fs.createReadStream(path, { start: startByte, end: endByte });
       fileStream.on('open', () => {

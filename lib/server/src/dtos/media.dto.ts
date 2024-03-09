@@ -18,6 +18,6 @@ export class MediaBlocksDto {
   public endBlockNum: number;
 
   @IsInt()
-  @Min(1)
-  public blockSize: number;
+  @Min(4)
+  public dataShardCount: number;
 }

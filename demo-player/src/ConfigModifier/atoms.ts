@@ -1,3 +1,4 @@
+import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 export const defaultConfig = {
@@ -6,9 +7,14 @@ export const defaultConfig = {
   chunkSize: 1000000,
   chunkTimeout: 500,
   extractionSize: 1,
+  dataShardCount: 4,
+  numOfBlocks: 16,
 };
 
 export const configAtom = atomWithStorage("config", defaultConfig);
+export const blockSizeAtom = atom(
+  (get) => 65536 * get(configAtom).dataShardCount
+);
 
 export const NO_EXT = "no-file-extension-found";
 export const getDefaultFormat = () =>

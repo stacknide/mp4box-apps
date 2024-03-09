@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import {
+  blockSizeAtom,
   configAtom,
   formatAtom,
   shouldUseCustomFetcherAtom,
@@ -11,7 +12,8 @@ import { useCustomBufferFetcher } from "./useCustomBufferFetcher";
 export const PARIS_VIDEO_BYTES = 28884979;
 
 export function Player() {
-  const [config] = useAtom(configAtom);
+  const config = useAtomValue(configAtom);
+  const blockSize = useAtomValue(blockSizeAtom);
 
   const [controls, setControls] = useState<Partial<PlayerControls>>({});
   const {
@@ -26,7 +28,7 @@ export function Player() {
 
   const vidRef = useRef(null);
 
-  const [shouldUseCustomFetcher] = useAtom(shouldUseCustomFetcherAtom);
+  const shouldUseCustomFetcher = useAtomValue(shouldUseCustomFetcherAtom);
   const dl = useCustomBufferFetcher();
 
   const format = useAtomValue(formatAtom);
@@ -40,9 +42,14 @@ export function Player() {
       format === "hosted-online" && config.url.includes("Paris-P1-1.mp4");
     if (isTestAirBnbVideo) downloader.setCustomTotalLength(PARIS_VIDEO_BYTES); // PARIS_VIDEO_BYTES = length of the test AirBnB mp4 file. This is needed because that file's Content-Range header is not exposed by the server.
 
-    downloader.setRealTime(true);
+    downloader.setRealTime(true); // TODO: create a control to toggle this
+
+    const customChunkSize = shouldUseCustomFetcher
+      ? blockSize * config.numOfBlocks
+      : config.chunkSize;
+    const cfg = { ...config, chunkSize: customChunkSize };
     const mp4boxPlayerInstance = //
-      new Mp4boxPlayer(vidRef.current, config, downloader);
+      new Mp4boxPlayer(vidRef.current, cfg, downloader);
 
     setControls(mp4boxPlayerInstance.getControls());
 
