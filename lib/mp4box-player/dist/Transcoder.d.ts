@@ -16,7 +16,7 @@ export class Transcoder {
     transcode: ({ input, ext, id, timeout }: {
         input: any;
         ext: any;
-        id?: string;
+        id?: string | undefined;
         timeout: any;
     }) => Promise<import("@ffmpeg/ffmpeg/dist/esm/types").FileData>;
 }

@@ -10,13 +10,15 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
-    "@knide/mp4box": "1.0.11"
+    "@knide/mp4box": "1.0.11",
+    "nanoid": "^5.0.6"
   },
   "description": "Video player with on-th-fly fragmentation support using mp4box.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c --bundleConfigAsCjs && npm run build:types",
-    "build:types": "tsc --declaration --emitDeclarationOnly --outDir ./dist ./src/index.js --allowJs"
+    "build": "rollup -c --bundleConfigAsCjs && yarn build:types",
+    "build:types": "tsc",
+    "dev": "rollup -c -w --bundleConfigAsCjs && yarn build:types"
   },
   "repository": {
     "type": "git",
@@ -33,8 +35,6 @@
   "bugs": {
     "url": "https://github.com/ashuvssut/mp4box-apps/issues"
   },
-  "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme",
-  "devDependencies": {
-    "@changesets/cli": "^2.27.1"
-  }
+  "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme"
 }
+

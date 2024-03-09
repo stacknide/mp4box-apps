@@ -27,9 +27,9 @@ export class Mp4boxPlayer {
      * @param {Object} info
      */
     /** @param {OnInfoCallback} callback - Called when movieInfo is available */
-    onMovieInfo: (callback: (info: any) => any) => void;
+    onMovieInfo: (callback: (info: Object) => any) => void;
     /** @param {OnInfoCallback} callback - Called when trackInfo is available */
-    onTrackInfo: (callback: (info: any) => any) => void;
+    onTrackInfo: (callback: (info: Object) => any) => void;
     /**
      * @callback OnErrorCallback
      * @param {string} errorId - String identifier for the error.
@@ -37,7 +37,7 @@ export class Mp4boxPlayer {
      * @param {any} extraContext - Optional custom error message/data from Mp4boxPlayer.
      */
     /** @param {OnErrorCallback} callback - Called when the status of a control changes */
-    onError: (callback: (errorId: string, error: any, extraContext: any) => any) => void;
+    onError: (callback: (errorId: string, error: Object, extraContext: any) => any) => void;
     processInbandCue: () => void;
     addVideoEventListeners: () => void;
     removeVideoEventListeners: () => void;
@@ -78,13 +78,13 @@ export class Mp4boxPlayer {
      * Retrieves information about video, audio, and text tracks in HTML5 media element.
      * @returns {Object} - Object containing information about video, audio, and text tracks.
      */
-    generateTrackInfo(video: any): any;
+    generateTrackInfo(video: any): Object;
     /**
      * Converts a date object to an object containing 'date' and 'time' properties.
      * @param {Date} date - a JS Date object instance
      * @returns {Object} - Object with 'date' and 'time' properties.
      */
-    dateFmt(date: Date): any;
+    dateFmt(date: Date): Object;
 }
 export type PlayerControls = {
     /**
