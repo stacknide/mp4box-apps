@@ -40,7 +40,7 @@ export function Player() {
   useEffect(() => {
     const transcoderConfig = {
       enableLogs: true,
-      dist: "umd",
+      dist: "esm",
       enableMultiThreading: false,
     };
     const transcoder = new Transcoder(transcoderConfig);
