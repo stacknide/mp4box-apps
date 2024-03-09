@@ -13,6 +13,7 @@ function App() {
       <fieldset>
         <legend>File download config</legend>
         <DownloadModeSelector />
+        <hr />
         <ConfigModifier />
       </fieldset>
     </>
@@ -25,26 +26,24 @@ function DownloadModeSelector() {
   const [shouldUseCustomFetcher, setShouldUseCustomFetcher] = //
     useAtom(shouldUseCustomFetcherAtom);
   return (
-    <>
-      <label style={{ display: "flex", gap: "10px" }}>
-        Select download mode
-        <label>
-          <input
-            type="radio"
-            checked={!shouldUseCustomFetcher}
-            onChange={() => setShouldUseCustomFetcher(false)}
-          />
-          HTTP Range request
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={shouldUseCustomFetcher}
-            onChange={() => setShouldUseCustomFetcher(true)}
-          />
-          Blocks range request (Züs multi-server download emulation)
-        </label>
+    <label style={{ display: "flex", gap: "10px" }}>
+      Select download mode
+      <label>
+        <input
+          type="radio"
+          checked={!shouldUseCustomFetcher}
+          onChange={() => setShouldUseCustomFetcher(false)}
+        />
+        HTTP Range request
       </label>
-    </>
+      <label>
+        <input
+          type="radio"
+          checked={shouldUseCustomFetcher}
+          onChange={() => setShouldUseCustomFetcher(true)}
+        />
+        Blocks range request (Züs multi-server download emulation)
+      </label>
+    </label>
   );
 }
