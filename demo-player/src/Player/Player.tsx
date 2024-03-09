@@ -38,17 +38,18 @@ export function Player() {
 
   const format = useAtomValue(formatAtom);
   useEffect(() => {
+    if (!vidRef.current) return;
     const transcoderConfig = {
       enableLogs: true,
       dist: "esm",
-      enableMultiThreading: false,
+      enableMultiThreading: true,
     };
     const transcoder = new Transcoder(transcoderConfig);
 
     const ext = config.url.split(".").pop() || "";
     const isSupported = ["mp4", "3gp", "mov"].includes(ext.toLowerCase());
 
-    const _transcoder = isSupported ? null : transcoder;
+    const _transcoder = isSupported ? undefined : transcoder;
     const downloader = new Downloader(vidRef.current, _transcoder);
 
     if (shouldUseCustomFetcher)
