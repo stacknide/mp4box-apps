@@ -22,8 +22,8 @@ export function Player() {
     // initializeAllSourceBuffers,
     // initializeSourceBuffers,
     // start,
-    // stop,
-    // reset,
+    stop,
+    reset,
   } = controls;
 
   const vidRef = useRef(null);
@@ -89,6 +89,10 @@ export function Player() {
           <button id="loadButton" onClick={() => load?.()}>
             Load Media Info
           </button>
+          <button id="stopButton" onClick={() => stop?.()}>
+            Stop Media Download
+          </button>
+          <button onClick={() => reset?.()}>Reset</button>
           {/* <button id="initAllButton" onClick={initializeAllSourceBuffers}>
             Add and Initialize All Source Buffers
           </button>
@@ -98,10 +102,7 @@ export function Player() {
           <button id="startButton" onClick={start}>
             Load Media Data &amp; Play
           </button>
-          <button id="stopButton" onClick={stop}>
-            Stop Media Download
-          </button>
-          <button onClick={reset}>Reset</button> */}
+         */}
         </fieldset>
       </section>
     </>
