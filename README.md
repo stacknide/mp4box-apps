@@ -5,7 +5,7 @@ Developing a set of utilities that leverages mp4box.js to do awesome media proce
 Checkout the following utlities:-
 - [mp4box player](#mp4box-player)
 
-## mp4box-player
+## 1. mp4box-player
 
 - Video player with on-the-fly fragmentation support using mp4box.js. Integrate you own video data fetching utility if you don't want to use http range requests Checkout [useCustomBufferFetcher.tsx](./demo-player/src/Player/useCustomBufferFetcher.tsx)
 
@@ -15,7 +15,7 @@ npm i @knide/mp4box-player
 
 For Example usage: Checkout [Player.tsx](./demo-player/src/Player/Player.tsx)
 
-## Development Environment setup
+### Development Environment setup
 
 1. Install Git LFS if you are going to upload videos in `lib/server/src/static/`.
 2. Run these
@@ -27,7 +27,8 @@ For Example usage: Checkout [Player.tsx](./demo-player/src/Player/Player.tsx)
     yarn dev:player # (Optional) re-build mp4box-player lib by watching for changes
     ```
 
-## Why do streaming using mp4box player?
+### Why do streaming using mp4box player?
+
 When streaming video on the web without a direct video URL, Media Source Extensions (MSE) combined with streaming protocols like DASH and HLS are commonly used. However, streaming protocols require pre-processed video streaming data. In cases where preprocessing is not possible, and there's no direct video URL to the raw video resource, then mp4box player can help you out here. It's tailored for scenarios where server-side video processing tasks such as fragmentation and transcoding are impractical or unavailable and you don't have a direct video URL to the video resource.
 
 ### What sets mp4box apart from traditional streaming methods?
@@ -73,8 +74,9 @@ Video is played by using the HTML `<video/>` element. `<video/>` needs any of th
 
   >	mp4box player should only be used if you could not afford to use conventional streaming methods as they are more performant and battle-tested
 
-## Note
+### Note
 
-- This project is still in development. The functionality works as shown in the demo player but its still not production ready because of the following reasons:
+- mp4box-player is still in development. The functionality works as shown in the demo player but its still not production ready because of the following reasons:
   - Sometimes if the `chunkSize` config is set to a small value (say `<3MB`), then the video fragmentation takes a lot of time.
   - Transcoding is very slow. So you will face delays when using any video format apart from .mp4, .3gp & .mov
+  - Subtitle processing is not currently scheduled for implementation. However, this feature may be added at a later time.

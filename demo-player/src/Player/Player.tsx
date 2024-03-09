@@ -83,7 +83,11 @@ export function Player() {
         <div style={{ width: `50%` }}>
           <div
             id="overlayTracks"
-            style={{ height: "80%", background: `#808080` }}
+            style={{ height: "30%", background: `#808080` }}
+          />
+          <div
+            id="transcoding-settings"
+            style={{ height: "50%" }}
           />
           Do not use the play button given in the video controls. Use the Play
           button from the Player Controls.
