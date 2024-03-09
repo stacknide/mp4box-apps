@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
+import {
+  Downloader,
+  Mp4boxPlayer,
+  PlayerControls,
+  Transcoder,
+} from "@knide/mp4box-player";
 import { useAtomValue } from "jotai";
 import {
   blockSizeAtom,
@@ -33,7 +38,18 @@ export function Player() {
 
   const format = useAtomValue(formatAtom);
   useEffect(() => {
-    const downloader = new Downloader(vidRef.current);
+    const transcoderConfig = {
+      enableLogs: true,
+      dist: "umd",
+      enableMultiThreading: false,
+    };
+    const transcoder = new Transcoder(transcoderConfig);
+
+    const ext = config.url.split(".").pop() || "";
+    const isSupported = ["mp4", "3gp", "mov"].includes(ext.toLowerCase());
+
+    const _transcoder = isSupported ? null : transcoder;
+    const downloader = new Downloader(vidRef.current, _transcoder);
 
     if (shouldUseCustomFetcher)
       downloader.setBufferFetcher(dl.abortableDownloadByteRange);

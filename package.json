@@ -6,7 +6,6 @@
   "private": true,
   "workspaces": [
     "lib/mp4box-player/",
-    "lib/transcode-plugin/",
     "lib/server/",
     "demo-player/"
   ],
