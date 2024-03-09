@@ -21,6 +21,7 @@ Setup
     yarn install
     yarn dev # starts demo-player app
     yarn serve # starts the media sever
+    yarn dev:player # (Optional) re-build mp4box-player lib by watching for changes
     ```
 
 ## Why do streaming using mp4box player?
