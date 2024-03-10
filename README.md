@@ -76,7 +76,7 @@ Video is played by using the HTML `<video/>` element. `<video/>` needs any of th
 ### Note
 
 - mp4box-player is still in development. The functionality works as shown in the demo player but its still not production ready because of the following reasons:
-  - Sometimes if the `chunkSize` config is set to a small value (say `<3MB`), then the video fragmentation takes a lot of time.
+  - Sometimes if the `chunkSize` config is set to a small value (say `<3MB`), then the video fragmentation takes a lot of time. [See this GitHub issue for more details](https://github.com/gpac/mp4box.js/issues/391)
   - Transcoding is very slow. So you will face delays when using any video format apart from .mp4, .3gp & .mov
   - Subtitle processing is not currently scheduled for implementation. However, this feature may be added at a later time.
 
