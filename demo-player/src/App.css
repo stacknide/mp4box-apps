@@ -129,3 +129,12 @@ trackinfo table tr th,
 .config-modifier-root label {
   display: grid;
 }
+
+pre {
+  margin: 0;
+}
+
+p span {
+  font-weight: bold;
+  color: #f6a828;
+}

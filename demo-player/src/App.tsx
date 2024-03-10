@@ -1,15 +1,17 @@
 import "./App.css";
 import { Player } from "./Player";
 import { ConfigModifier } from "./ConfigModifier/ConfigModifier";
-import { configAtom, shouldUseCustomFetcherAtom } from "./ConfigModifier/atoms";
+import {
+  playerResetKeyAtom,
+  shouldUseCustomFetcherAtom,
+} from "./ConfigModifier/atoms";
 import { useAtom } from "jotai";
 
 function App() {
-  const [config] = useAtom(configAtom);
-
+  const [playerResetKey] = useAtom(playerResetKeyAtom);
   return (
     <>
-      <Player key={Object.values(config).join("-")} />
+      <Player key={playerResetKey} />
       <fieldset>
         <legend>File download config</legend>
         <DownloadModeSelector />

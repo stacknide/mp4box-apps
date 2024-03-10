@@ -11,8 +11,10 @@ import {
   configAtom,
   formatAtom,
   shouldUseCustomFetcherAtom,
+  transcoderConfigAtom,
 } from "../ConfigModifier/atoms";
 import { useCustomBufferFetcher } from "./useCustomBufferFetcher";
+import { TranscoderControls } from "../ConfigModifier/TranscoderControls";
 
 export const PARIS_VIDEO_BYTES = 28884979;
 
@@ -37,13 +39,10 @@ export function Player() {
   const dl = useCustomBufferFetcher();
 
   const format = useAtomValue(formatAtom);
+  const transcoderConfig = useAtomValue(transcoderConfigAtom);
   useEffect(() => {
     if (!vidRef.current) return;
-    const transcoderConfig = {
-      enableLogs: true,
-      dist: "esm",
-      enableMultiThreading: true,
-    };
+
     const transcoder = new Transcoder(transcoderConfig);
 
     const ext = config.url.split(".").pop() || "";
@@ -81,20 +80,21 @@ export function Player() {
       <div style={{ position: "relative", width: "100%", display: "flex" }}>
         <video id="v" autoPlay controls style={{ width: `50%` }} ref={vidRef} />
         <div style={{ width: `50%` }}>
-          <div
+          {/* <div
             id="overlayTracks"
             style={{ height: "30%", background: `#808080` }}
-          />
-          <div
-            id="transcoding-settings"
-            style={{ height: "50%" }}
-          />
-          Do not use the play button given in the video controls. Use the Play
-          button from the Player Controls.
+          /> */}
           {/* <div id="overlayProgress">Progress: {config.progress}</div> */}
+
+          <div id="transcoding">
+            <TranscoderControls />
+          </div>
         </div>
       </div>
-
+      <p>
+        Do not use the play button given in the video controls.&nbsp;
+        <strong>Use the Play button from the Player Controls.</strong>
+      </p>
       <section id="tabs-1">
         <h1>Player Controls</h1>
         <div>
