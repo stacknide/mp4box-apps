@@ -80,3 +80,8 @@ Video is played by using the HTML `<video/>` element. `<video/>` needs any of th
   - Sometimes if the `chunkSize` config is set to a small value (say `<3MB`), then the video fragmentation takes a lot of time.
   - Transcoding is very slow. So you will face delays when using any video format apart from .mp4, .3gp & .mov
   - Subtitle processing is not currently scheduled for implementation. However, this feature may be added at a later time.
+
+## Acknowledgements
+
+Special thanks to the contributors of mp4box.js for their invaluable work on the mp4box library. Their efforts have greatly contributed to the functionality of this project.
+
