@@ -7,8 +7,20 @@ export function TranscoderControls() {
   return (
     <fieldset style={{ marginLeft: "10px" }}>
       <legend>FFMPEG Transcoder config</legend>
+      <strong>This is a WIP feature.</strong>
+      <p>
+        To use transcoder its imporant to set the time duration &
+        total byte length of the video using Mp4boxPlayer.setCustomDuration() &
+        downloader.setCustomTotalLength() respectively
+      </p>
       <label>
-        <input type="checkbox" />
+        <input
+          type="checkbox"
+          checked={config.isEnabled}
+          onChange={() => {
+            setConfig((prev) => ({ ...prev, isEnabled: !prev.isEnabled }));
+          }}
+        />
         Enable Transcoding
       </label>
       <p>

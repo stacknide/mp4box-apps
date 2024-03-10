@@ -2,13 +2,13 @@ import { execSync } from 'child_process';
 import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-
+import { videoDuration } from '@numairawan/video-duration'; // ODO: I think this is not reliable
 export class MediaController {
   public httpRangeRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const fileName = req.params.fileName;
 
     try {
-      const { stat, path } = this.getVideoDetails(fileName);
+      const { stat, path } = this.getVideoStat(fileName);
       const fileSize = stat.size;
 
       const mimeType = this.getMimeType(path) || 'video/mp4';
@@ -56,7 +56,7 @@ export class MediaController {
     const blockSize = dataShardCount * 65536;
 
     try {
-      const { stat, path } = this.getVideoDetails(fileName);
+      const { stat, path } = this.getVideoStat(fileName);
       const fileSize = stat.size;
       const mimeType = this.getMimeType(path) || 'video/mp4';
 
@@ -86,19 +86,20 @@ export class MediaController {
     }
   };
 
-  public fileSize = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getFileDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const fileName = req.params.fileName;
 
     try {
-      const { stat } = this.getVideoDetails(fileName);
-      const fileSize = stat.size;
-      res.status(200).json({ data: fileSize, message: 'fileSize' });
+      const { stat, path } = this.getVideoStat(fileName);
+      const duration = await videoDuration(path);
+
+      res.status(200).json({ size: stat.size, duration });
     } catch (error) {
       next(error);
     }
   };
 
-  private getVideoDetails = (fileName: string) => {
+  private getVideoStat = (fileName: string) => {
     const videoFilePath = path.join(__dirname, '../static', fileName);
     const stat = fs.statSync(videoFilePath);
     return { stat, path: videoFilePath };

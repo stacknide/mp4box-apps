@@ -47,7 +47,8 @@ export const sliceByteRangeFromBlockData = (
   else return blockData.slice(sliceStartIdx, endIdx);
 };
 
-export const getFileSize = async (url: string) => {
+type TFileDetails = { size: number; duration: number };
+export const getFileDetails = async (url: string) => {
   const fileName = url.split("/").pop();
 
   const fileSizeUrl = `http://localhost:3000/media/size/${fileName}`;
@@ -55,11 +56,11 @@ export const getFileSize = async (url: string) => {
   try {
     const response = await fetch(fileSizeUrl);
     if (response.ok) {
-      const { data: fileSize } = await response.json();
-      return fileSize as number;
+      const { size, duration } = await response.json();
+      return { size, duration: duration.duration / 1000 } as TFileDetails;
     } else throw new Error("Failed to fetch file size");
   } catch (error) {
     console.error(error);
-    return 0;
+    return { size: undefined, duration: undefined };
   }
 };

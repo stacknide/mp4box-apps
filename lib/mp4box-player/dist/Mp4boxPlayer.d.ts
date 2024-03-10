@@ -52,6 +52,8 @@ export class Mp4boxPlayer {
     onSourceOpen: (e: any) => void;
     stop: () => void;
     play: () => void;
+    customDuration: null;
+    setCustomDuration: (duration: any) => void;
     load: () => void;
     mp4boxfile: any;
     movieInfo: any;

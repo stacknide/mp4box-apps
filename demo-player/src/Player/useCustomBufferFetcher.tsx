@@ -1,7 +1,7 @@
 import { useAtomValue } from "jotai";
 import {
   getByteRangeToBlockNumberRange,
-  getFileSize,
+  getFileDetails,
   sliceByteRangeFromBlockData,
 } from "./utils";
 import { blockSizeAtom, configAtom, formatAtom } from "../ConfigModifier/atoms";
@@ -45,7 +45,11 @@ export const useCustomBufferFetcher = (downloadUptoEnd = true) => {
     endByte: number,
     signal: AbortSignal
   ) => {
-    if (!fileSize.current) fileSize.current = await getFileSize(config.url);
+    if (!fileSize.current) {
+      const { size } = await getFileDetails(config.url);
+      if(!size) return console.error("Invalid file size");
+      fileSize.current = size;
+    }
     return new Promise((resolve, reject) => {
       let errMsg = "";
       if (isOnlineHosted)

@@ -16,7 +16,7 @@ import {
 } from "../ConfigModifier/atoms";
 import { useCustomBufferFetcher } from "./useCustomBufferFetcher";
 import { TranscoderControls } from "../ConfigModifier/TranscoderControls";
-import { getFileSize } from "./utils";
+import { getFileDetails } from "./utils";
 
 export const PARIS_VIDEO_BYTES = 28884979;
 
@@ -44,49 +44,50 @@ export function Player() {
   const isTestAirBnbVideo =
     format === "hosted-online" && config.url.includes("Paris-P1-1.mp4");
 
+  const playerInstance = useRef<Mp4boxPlayer | null>(null);
   const inputVideoFormat = useActiveFormat();
   const transcoderConfig = useAtomValue(transcoderConfigAtom);
+
+  const initializeMp4boxPlayer = async () => {
+    if (!vidRef.current) return null;
+    if (transcoderConfig.isEnabled && format === "hosted-online")
+      return console.error("Can't use transcoder with online hosted videos");
+
+    const transcoder = new Transcoder(transcoderConfig);
+    transcoder.setInputFormat(inputVideoFormat);
+
+    const _transcoder = transcoderConfig.isEnabled ? transcoder : undefined;
+    const downloader = new Downloader(vidRef.current, _transcoder);
+    downloader.setRealTime(true); // TODO: create a control to toggle this
+
+    if (shouldUseCustomFetcher)
+      downloader.setBufferFetcher(dl.abortableDownloadByteRange);
+
+    if (isTestAirBnbVideo) downloader.setCustomTotalLength(PARIS_VIDEO_BYTES); // PARIS_VIDEO_BYTES = length of the test AirBnB mp4 file. This is needed because that file's Content-Range header is not exposed by the server.
+
+    const customChunkSize = shouldUseCustomFetcher
+      ? blockSize * config.numOfBlocks
+      : config.chunkSize;
+    const cfg = { ...config, chunkSize: customChunkSize };
+    const mp4boxPlayerInstance = //
+      new Mp4boxPlayer(vidRef.current, cfg, downloader);
+    playerInstance.current = mp4boxPlayerInstance;
+
+    const { size, duration } = await getFileDetails(config.url);
+    if (transcoderConfig.isEnabled) {
+      downloader.setCustomTotalLength(size);
+      // mp4boxPlayerInstance.setCustomDuration(duration); // TODO: duration is unreliable. check for better nodejs libs
+    }
+
+    setControls(mp4boxPlayerInstance.getControls());
+
+    return mp4boxPlayerInstance;
+  };
+
   useEffect(() => {
-    const initializeMp4boxPlayer = async () => {
-      if (!vidRef.current) return null;
+    initializeMp4boxPlayer();
 
-      const transcoder = new Transcoder(transcoderConfig);
-      transcoder.setInputFormat(inputVideoFormat);
-
-      const _transcoder = transcoderConfig.isEnabled ? undefined : transcoder;
-      const downloader = new Downloader(vidRef.current, _transcoder);
-
-      if (shouldUseCustomFetcher)
-        downloader.setBufferFetcher(dl.abortableDownloadByteRange);
-        debugger;
-
-      if (isTestAirBnbVideo) downloader.setCustomTotalLength(PARIS_VIDEO_BYTES); // PARIS_VIDEO_BYTES = length of the test AirBnB mp4 file. This is needed because that file's Content-Range header is not exposed by the server.
-      if (transcoderConfig.isEnabled) {
-        const fileSize = await getFileSize(config.url);
-        downloader.setCustomTotalLength(fileSize);
-      }
-
-      downloader.setRealTime(true); // TODO: create a control to toggle this
-
-      const customChunkSize = shouldUseCustomFetcher
-        ? blockSize * config.numOfBlocks
-        : config.chunkSize;
-      const cfg = { ...config, chunkSize: customChunkSize };
-      const mp4boxPlayerInstance = //
-        new Mp4boxPlayer(vidRef.current, cfg, downloader);
-
-      setControls(mp4boxPlayerInstance.getControls());
-
-      return mp4boxPlayerInstance;
-    };
-
-    let mp4boxPlayerInstance: Mp4boxPlayer | null = null;
-    initializeMp4boxPlayer().then((player) => {
-      mp4boxPlayerInstance = player;
-    });
-    return () => {
-      mp4boxPlayerInstance?.stop();
-    };
+    return () => playerInstance.current?.stop();
   }, []);
 
   return (
