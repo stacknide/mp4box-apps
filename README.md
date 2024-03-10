@@ -83,5 +83,5 @@ Video is played by using the HTML `<video/>` element. `<video/>` needs any of th
 
 ## Acknowledgements
 
-Special thanks to the contributors of mp4box.js for their invaluable work on the mp4box library. Their efforts have greatly contributed to the functionality of this project.
+Special thanks to the contributors of [mp4box.js](https://github.com/gpac/mp4box.js) for their invaluable work on the mp4box library. Their efforts have greatly contributed to the functionality of this project.
 
