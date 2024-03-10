@@ -96,14 +96,13 @@ export function Player() {
         <strong>Use the Play button from the Player Controls.</strong>
       </p>
       <section id="tabs-1">
-        <h1>Player Controls</h1>
-        <div>
+        <div style={{ marginBottom: "10px" }}>
           <label>URL:</label>
           <span> {config.url}</span>
         </div>
 
         <fieldset>
-          <legend>Download/Playback Controls</legend>
+          <legend>Player Controls</legend>
           <button id="playButton" onClick={() => play?.()}>
             Play
           </button>

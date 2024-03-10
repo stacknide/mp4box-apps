@@ -99,10 +99,10 @@ export function FileSelector() {
           }}
         >
           {fileList.map((name) => {
-            const ext = name.split(".").pop() || "";
-            const isSupported = ["mp4", "3gp", "mov"].includes(
-              ext.toLowerCase()
-            );
+            const ext = (name.split(".").pop() || "").toLowerCase();
+            const hasFrag = ext === "mp4" && name.includes("frag");
+            const isSupported = ["mp4", "3gp", "mov"].includes(ext) && !hasFrag;
+            console.log(ext, name, name.includes("frag"), isSupported);
             return (
               <option key={"opt" + name} value={name}>
                 {name} {isSupported ? "" : "(needs transcoding?)"}
