@@ -12,9 +12,11 @@ import {
   formatAtom,
   shouldUseCustomFetcherAtom,
   transcoderConfigAtom,
+  useActiveFormat,
 } from "../ConfigModifier/atoms";
 import { useCustomBufferFetcher } from "./useCustomBufferFetcher";
 import { TranscoderControls } from "../ConfigModifier/TranscoderControls";
+import { getFileSize } from "./utils";
 
 export const PARIS_VIDEO_BYTES = 28884979;
 
@@ -39,38 +41,51 @@ export function Player() {
   const dl = useCustomBufferFetcher();
 
   const format = useAtomValue(formatAtom);
+  const isTestAirBnbVideo =
+    format === "hosted-online" && config.url.includes("Paris-P1-1.mp4");
+
+  const inputVideoFormat = useActiveFormat();
   const transcoderConfig = useAtomValue(transcoderConfigAtom);
   useEffect(() => {
-    if (!vidRef.current) return;
+    const initializeMp4boxPlayer = async () => {
+      if (!vidRef.current) return null;
 
-    const transcoder = new Transcoder(transcoderConfig);
+      const transcoder = new Transcoder(transcoderConfig);
+      transcoder.setInputFormat(inputVideoFormat);
 
-    const ext = config.url.split(".").pop() || "";
-    const isSupported = ["mp4", "3gp", "mov"].includes(ext.toLowerCase());
+      const _transcoder = transcoderConfig.isEnabled ? undefined : transcoder;
+      const downloader = new Downloader(vidRef.current, _transcoder);
 
-    const _transcoder = isSupported ? undefined : transcoder;
-    const downloader = new Downloader(vidRef.current, _transcoder);
+      if (shouldUseCustomFetcher)
+        downloader.setBufferFetcher(dl.abortableDownloadByteRange);
+        debugger;
 
-    if (shouldUseCustomFetcher)
-      downloader.setBufferFetcher(dl.abortableDownloadByteRange);
+      if (isTestAirBnbVideo) downloader.setCustomTotalLength(PARIS_VIDEO_BYTES); // PARIS_VIDEO_BYTES = length of the test AirBnB mp4 file. This is needed because that file's Content-Range header is not exposed by the server.
+      if (transcoderConfig.isEnabled) {
+        const fileSize = await getFileSize(config.url);
+        downloader.setCustomTotalLength(fileSize);
+      }
 
-    const isTestAirBnbVideo =
-      format === "hosted-online" && config.url.includes("Paris-P1-1.mp4");
-    if (isTestAirBnbVideo) downloader.setCustomTotalLength(PARIS_VIDEO_BYTES); // PARIS_VIDEO_BYTES = length of the test AirBnB mp4 file. This is needed because that file's Content-Range header is not exposed by the server.
+      downloader.setRealTime(true); // TODO: create a control to toggle this
 
-    downloader.setRealTime(true); // TODO: create a control to toggle this
+      const customChunkSize = shouldUseCustomFetcher
+        ? blockSize * config.numOfBlocks
+        : config.chunkSize;
+      const cfg = { ...config, chunkSize: customChunkSize };
+      const mp4boxPlayerInstance = //
+        new Mp4boxPlayer(vidRef.current, cfg, downloader);
 
-    const customChunkSize = shouldUseCustomFetcher
-      ? blockSize * config.numOfBlocks
-      : config.chunkSize;
-    const cfg = { ...config, chunkSize: customChunkSize };
-    const mp4boxPlayerInstance = //
-      new Mp4boxPlayer(vidRef.current, cfg, downloader);
+      setControls(mp4boxPlayerInstance.getControls());
 
-    setControls(mp4boxPlayerInstance.getControls());
+      return mp4boxPlayerInstance;
+    };
 
+    let mp4boxPlayerInstance: Mp4boxPlayer | null = null;
+    initializeMp4boxPlayer().then((player) => {
+      mp4boxPlayerInstance = player;
+    });
     return () => {
-      mp4boxPlayerInstance.stop();
+      mp4boxPlayerInstance?.stop();
     };
   }, []);
 

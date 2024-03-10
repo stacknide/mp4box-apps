@@ -18,7 +18,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c --bundleConfigAsCjs && yarn build:types",
     "build:types": "tsc",
-    "dev": "rollup -c -w --bundleConfigAsCjs && yarn build:types"
+    "dev": "concurrently \"rollup -c -w --bundleConfigAsCjs\" \"tsc -w\""
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,8 @@
   "bugs": {
     "url": "https://github.com/ashuvssut/mp4box-apps/issues"
   },
-  "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme"
+  "homepage": "https://github.com/ashuvssut/mp4box-apps/tree/main#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
-

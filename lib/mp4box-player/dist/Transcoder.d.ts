@@ -13,11 +13,13 @@ export class Transcoder {
     };
     ffmpeg: FFmpeg;
     load: () => Promise<void>;
-    transcode: ({ input, ext, id, timeout }: {
+    inputFormat: null;
+    setInputFormat: (format: any) => any;
+    transcode: ({ input, id, timeout, signal }: {
         input: any;
-        ext: any;
         id?: string | undefined;
         timeout: any;
+        signal: any;
     }) => Promise<import("@ffmpeg/ffmpeg/dist/esm/types").FileData>;
 }
 import { FFmpeg } from "@ffmpeg/ffmpeg";
