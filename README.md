@@ -68,7 +68,6 @@ Video is played by using the HTML `<video/>` element. `<video/>` needs any of th
   **TL;DR**
 - mp4box can allows you to use your own video data fetching utility if you don't have a video URL to put in your `<video/>` element.
 - mp4box does video processing on the frontend side on-the-fly. Its useful if you are unable to use "streaming protocols" solution because you are unable prepare video streaming data on you server. (*video streaming data means*:- In case of DASH (using shaka-player): 1 audio stream + 1 or more video streams + a .mpd manifest file is needed, in case of HLS: a lot of segmented files + a .m3u8 manifest file is needed)
-- MSE lacks the ability for video seeking due to the necessity of a manifest file to correctly handle fragmented video data.
 	
   > mp4box player is useful when you cannot leverage any of the above three conventional streaming methods. It can use video data coming from you custom promise-based data fetching utility + it does fragmentation on-the-fly + it doesn't need a manifest file.
 
