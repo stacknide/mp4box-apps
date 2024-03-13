@@ -27,6 +27,7 @@ const videoNameList = [
   "oceans.mp4",
   "output.m4v",
   "recording.mp4",
+  "simple-4k-180mb.mp4",
 ];
 
 const localBaseUrl = "http://localhost:3000/media/range";
