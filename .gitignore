@@ -1,3 +1,7 @@
 .dump/
 node_modules/
 .DS_Store
+
+lib/server/src/static/video/*/*
+!lib/server/src/static/video/*/.gitkeep
+!lib/server/src/static/video/mp4/airbnb.mp4
