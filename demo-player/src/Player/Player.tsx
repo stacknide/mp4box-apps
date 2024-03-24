@@ -75,8 +75,8 @@ export function Player() {
 
     const { size, duration } = await getFileDetails(config.url);
     if (transcoderConfig.isEnabled) {
-      downloader.setCustomTotalLength(size);
-      // mp4boxPlayerInstance.setCustomDuration(duration); // TODO: duration is unreliable. check for better nodejs libs
+      if (size) downloader.setCustomTotalLength(size);
+      // if (duration) mp4boxPlayerInstance.setCustomDuration(duration); // TODO: duration is unreliable. check for better nodejs libs
     }
 
     setControls(mp4boxPlayerInstance.getControls());

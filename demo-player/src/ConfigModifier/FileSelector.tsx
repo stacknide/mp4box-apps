@@ -5,36 +5,15 @@ import {
   configAtom,
   formatAtom,
   shouldUseCustomFetcherAtom,
+  videoListAtom,
 } from "./atoms";
-
-const videoNameList = [
-  "3gp.3gp",
-  "AVI_480_750kB.avi",
-  "BigBuckBunny.mp4",
-  "MOV_480_700kB.mov",
-  "WMV_480_1_2MB.wmv",
-  "Webm_ocean_with_audio.webm",
-  "airbnb.mp4",
-  "asf.asf",
-  "frag-input-with_base_moof.mp4",
-  "frag-input.mp4",
-  "frag-recording-with_base_moof.mp4",
-  "frag-recording.mp4",
-  "frag_bunny.mp4",
-  "input.mp4",
-  "mkv.mkv",
-  "mov-out.mp4",
-  "oceans.mp4",
-  "output.m4v",
-  "recording.mp4",
-  "simple-4k-180mb.mp4",
-];
 
 const localBaseUrl = "http://localhost:3000/media/range";
 
 export function FileSelector() {
   const [config, setConfig] = useAtom(configAtom);
   const [format, setFormat] = useAtom(formatAtom);
+  const [videoNameList] = useAtom(videoListAtom);
 
   const [shouldUseCustomFetcher] = useAtom(shouldUseCustomFetcherAtom);
 
@@ -56,7 +35,8 @@ export function FileSelector() {
       return [groups, groupKeys] as const;
     };
     return groupByFormat();
-  }, [shouldUseCustomFetcher]);
+  }, [shouldUseCustomFetcher, videoNameList]);
+
   const fileList = groups[format] || [];
   useEffect(() => {
     const formatFileList = groups[format];
@@ -101,7 +81,7 @@ export function FileSelector() {
         >
           {fileList.map((name) => {
             const ext = (name.split(".").pop() || "").toLowerCase();
-            const hasFrag = ext === "mp4" && name.includes("frag");
+            const hasFrag = ext === "mp4" && name.startsWith("frag");
             const isSupported = ["mp4", "3gp", "mov"].includes(ext) && !hasFrag;
             return (
               <option key={"opt" + name} value={name}>

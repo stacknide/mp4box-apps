@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { videoDuration } from '@numairawan/video-duration'; // ODO: I think this is not reliable
+import { videoDuration } from '@numairawan/video-duration'; // TODO: I think this is not reliable
 export class MediaController {
   public httpRangeRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const fileName = req.params.fileName;
@@ -100,7 +100,16 @@ export class MediaController {
   };
 
   private getVideoStat = (fileName: string) => {
-    const videoFilePath = path.join(__dirname, '../static', fileName);
+    let folderName = path.extname(fileName).slice(1);
+    if (folderName === 'mp4' && fileName.startsWith('frag')) folderName = 'fmp4';
+
+    if (!folderName) {
+      const error = new Error('File not found');
+      (error as any).status = 404;
+      throw error;
+    }
+
+    const videoFilePath = path.join(__dirname, `../static/video/${folderName}`, fileName);
     const stat = fs.statSync(videoFilePath);
     return { stat, path: videoFilePath };
   };
@@ -136,6 +145,29 @@ export class MediaController {
     } else {
       console.log('Unknown Platform - cannot determine MIME type');
       return '';
+    }
+  };
+
+  public getVideoList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const videoFolderPath = path.join(__dirname, '../static/video/');
+      const videoFolders = fs.readdirSync(videoFolderPath);
+
+      const videoList: string[] = [];
+      videoFolders.forEach(folder => {
+        const folderPath = path.join(videoFolderPath, folder);
+        if (!fs.statSync(folderPath).isDirectory()) return;
+
+        const videosInFolder = fs.readdirSync(folderPath);
+        videosInFolder.forEach(childFileName => {
+          if (['.gitkeep', '.DS_Store', 'README.md'].includes(childFileName)) return;
+          videoList.push(childFileName);
+        });
+      });
+
+      res.status(200).json({ videoList });
+    } catch (error) {
+      next(error);
     }
   };
 }

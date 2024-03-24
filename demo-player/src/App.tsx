@@ -4,8 +4,10 @@ import { ConfigModifier } from "./ConfigModifier/ConfigModifier";
 import {
   playerResetKeyAtom,
   shouldUseCustomFetcherAtom,
+  videoListAtom,
 } from "./ConfigModifier/atoms";
 import { useAtom } from "jotai";
+import { useEffect } from "react";
 
 function App() {
   const [playerResetKey] = useAtom(playerResetKeyAtom);
@@ -27,6 +29,14 @@ export default App;
 function DownloadModeSelector() {
   const [shouldUseCustomFetcher, setShouldUseCustomFetcher] = //
     useAtom(shouldUseCustomFetcherAtom);
+
+  const [, setVideoList] = useAtom(videoListAtom);
+  useEffect(() => {
+    fetch("http://localhost:3000/media/list")
+      .then((res) => res.json())
+      .then((data) => setVideoList(data.videoList));
+  }, []);
+
   return (
     <label style={{ display: "flex", gap: "10px" }}>
       Select download mode

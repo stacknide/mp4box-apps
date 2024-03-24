@@ -14,6 +14,7 @@ export class MediaRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.get(`${this.path}/list`, this.media.getVideoList);
     this.router.get(`${this.path}/range/:fileName`, this.media.httpRangeRequest);
     this.router.post(`${this.path}/blocks`, ValidationMiddleware(MediaBlocksDto), this.media.blocksRangeRequest);
     this.router.get(`${this.path}/size/:fileName`, this.media.getFileDetails);

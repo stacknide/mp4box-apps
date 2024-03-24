@@ -49,6 +49,9 @@ export const sliceByteRangeFromBlockData = (
 
 type TFileDetails = { size: number; duration: number };
 export const getFileDetails = async (url: string) => {
+  if (url.startsWith("https://"))
+    return { size: undefined, duration: undefined };
+
   const fileName = url.split("/").pop();
 
   const fileSizeUrl = `http://localhost:3000/media/size/${fileName}`;

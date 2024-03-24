@@ -46,6 +46,8 @@ export const playerResetKeyAtom = atom((get) => {
   return `${configStr}-${transcoderConfigStr}`;
 });
 
+export const videoListAtom = atomWithStorage("videoList", ["airbnb.mp4"]);
+
 export const NO_EXT = "no-file-extension-found";
 export const getDefaultFormat = () =>
   defaultConfig.url.split(".").pop() || NO_EXT;
