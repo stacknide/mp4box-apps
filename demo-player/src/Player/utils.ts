@@ -60,7 +60,7 @@ export const getFileDetails = async (url: string) => {
     const response = await fetch(fileSizeUrl);
     if (response.ok) {
       const { size, duration } = await response.json();
-      return { size, duration: duration.duration / 1000 } as TFileDetails;
+      return { size, duration } as TFileDetails;
     } else throw new Error("Failed to fetch file size");
   } catch (error) {
     console.error(error);

@@ -2,7 +2,8 @@ import { execSync } from 'child_process';
 import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { videoDuration } from '@numairawan/video-duration'; // TODO: I think this is not reliable
+import ffmpeg from 'fluent-ffmpeg';
+
 export class MediaController {
   public httpRangeRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const fileName = req.params.fileName;
@@ -88,12 +89,20 @@ export class MediaController {
 
   public getFileDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const fileName = req.params.fileName;
-
+    // const filePath = path.join(__dirname, '../static/video/', fileName);
+    const { path } = this.getVideoStat(fileName);
     try {
-      const { stat, path } = this.getVideoStat(fileName);
-      const duration = await videoDuration(path);
+      ffmpeg.ffprobe(path, (err, metadata) => {
+        if (err) {
+          next(err);
+          return;
+        }
 
-      res.status(200).json({ size: stat.size, duration });
+        const duration = metadata.format.duration; // Duration in seconds
+        const size = metadata.format.size; // Size in bytes
+
+        res.status(200).json({ size, duration });
+      });
     } catch (error) {
       next(error);
     }
