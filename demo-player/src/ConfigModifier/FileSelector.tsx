@@ -46,11 +46,11 @@ export function FileSelector() {
       const url = isOnlineUrl
         ? formatFileList[0]
         : `${localBaseUrl}/${formatFileList[0]}`;
-      setConfig({ ...config, url });
+      setConfig((p) => ({ ...p, url }));
     } else {
       // reset to default
       setFormat("mp4");
-      setConfig({ ...config, url: `${localBaseUrl}/airbnb.mp4` });
+      setConfig((p) => ({ ...p, url: `${localBaseUrl}/airbnb.mp4` }));
     }
   }, [format, groups]);
 

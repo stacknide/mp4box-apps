@@ -5,7 +5,7 @@ import { useMemo } from "react";
 export const defaultConfig = {
   url: "http://localhost:3000/media/range/airbnb.mp4",
   segmentSize: 1000,
-  chunkSize: 1000000,
+  chunkSize: 1000000, // 1 MB
   chunkTimeout: 500,
   extractionSize: 1,
   dataShardCount: 4,
