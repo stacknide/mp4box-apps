@@ -17,7 +17,7 @@ For Example usage: Checkout [Player.tsx](./demo-player/src/Player/Player.tsx)
 
 ### Development Environment setup
 
-1. Install Git LFS if you are going to upload videos in `lib/server/src/static/`.
+1. (Optional) Copy the test `video/` folder to `lib/server/src/static/` from this [google drive link](https://drive.google.com/drive/folders/1c_BqgGk1Y9GFkxPpvn5mEocEDrcbp4n7?usp=sharing).
 2. Run these
 
     ```bash
