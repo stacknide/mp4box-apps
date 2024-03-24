@@ -1,0 +1,3 @@
+[submodule "lib/mp4box-ts"]
+	path = lib/mp4box-ts
+	url = git@github.com:stacknide/mp4box-ts.git
