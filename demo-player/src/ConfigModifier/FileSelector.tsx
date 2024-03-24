@@ -29,6 +29,7 @@ export function FileSelector() {
       if (!shouldUseCustomFetcher)
         groups["hosted-online"] = [
           "https://a0.muscache.com/airbnb/static/Paris-P1-1.mp4",
+          "https://de.catbox.moe/ol3g57.mkv",
         ];
 
       const groupKeys = Object.keys(groups);

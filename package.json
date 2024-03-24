@@ -9,6 +9,7 @@
   "workspaces": [
     "lib/mp4box-player/",
     "lib/server/",
+    "lib/mp4box-ts/",
     "demo-player/"
   ],
   "scripts": {
