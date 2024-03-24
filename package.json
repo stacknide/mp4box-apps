@@ -4,6 +4,8 @@
   "author": "Ashutosh Khanduala <ashu.khanduala@gmail.com>",
   "license": "MIT",
   "private": true,
+  "description": "Developing a set of utilities that leverages mp4box.js to do awesome media processing stuff on the frontend.",
+  "repository": "https://github.com/stacknide/mp4box-apps",
   "workspaces": [
     "lib/mp4box-player/",
     "lib/server/",
