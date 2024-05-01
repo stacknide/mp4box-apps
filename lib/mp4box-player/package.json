@@ -1,6 +1,6 @@
 {
   "name": "@knide/mp4box-player",
-  "version": "2.1.1",
+  "version": "2.2.1",
   "author": "ashuvssut (ashu.khanduala@gmail.com)",
   "license": "MIT",
   "main": "dist/index.cjs",
