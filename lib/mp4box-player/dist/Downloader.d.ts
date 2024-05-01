@@ -2,9 +2,8 @@ export class Downloader {
     /**
      * @constructor
      * @param {HTMLVideoElement} videoElement
-     * @param {Transcoder} [transcoder]
      */
-    constructor(videoElement: HTMLVideoElement, transcoder?: Transcoder | undefined);
+    constructor(videoElement: HTMLVideoElement);
     isActive: boolean;
     realtime: boolean;
     chunkStart: number;
@@ -19,7 +18,6 @@ export class Downloader {
     abortController: AbortController;
     bufferFetcher: Function | null;
     videoElement: HTMLVideoElement;
-    transcoder: Transcoder | undefined;
     setDownloadTimeoutCallback: (callback: any) => this;
     reset: () => this;
     setRealTime: (_realtime: any) => this;
@@ -48,4 +46,3 @@ export class Downloader {
     stop: () => this;
     computeWaitingTimeFromBuffer(video: any): number;
 }
-import { Transcoder } from "./Transcoder";

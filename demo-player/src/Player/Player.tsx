@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Downloader,
-  Mp4boxPlayer,
-  PlayerControls,
-  Transcoder,
-} from "@knide/mp4box-player";
+import { Downloader, Mp4boxPlayer, PlayerControls } from "@knide/mp4box-player";
 import { useAtomValue } from "jotai";
 import {
   blockSizeAtom,
@@ -12,7 +7,6 @@ import {
   formatAtom,
   shouldUseCustomFetcherAtom,
   transcoderConfigAtom,
-  useActiveFormat,
 } from "../ConfigModifier/atoms";
 import { useCustomBufferFetcher } from "./useCustomBufferFetcher";
 import { TranscoderControls } from "../ConfigModifier/TranscoderControls";
@@ -45,7 +39,6 @@ export function Player() {
     format === "hosted-online" && config.url.includes("Paris-P1-1.mp4");
 
   const playerInstance = useRef<Mp4boxPlayer | null>(null);
-  const inputVideoFormat = useActiveFormat();
   const transcoderConfig = useAtomValue(transcoderConfigAtom);
 
   const initializeMp4boxPlayer = async () => {
@@ -53,11 +46,7 @@ export function Player() {
     if (transcoderConfig.isEnabled && format === "hosted-online")
       return console.error("Can't use transcoder with online hosted videos");
 
-    const transcoder = new Transcoder(transcoderConfig);
-    transcoder.setInputFormat(inputVideoFormat);
-
-    const _transcoder = transcoderConfig.isEnabled ? transcoder : undefined;
-    const downloader = new Downloader(vidRef.current, _transcoder);
+    const downloader = new Downloader(vidRef.current);
     downloader.setRealTime(true); // TODO: create a control to toggle this
 
     if (shouldUseCustomFetcher)
@@ -103,7 +92,7 @@ export function Player() {
           {/* <div id="overlayProgress">Progress: {config.progress}</div> */}
 
           <div id="transcoding">
-            <TranscoderControls />
+            {/* <TranscoderControls /> */}
           </div>
         </div>
       </div>

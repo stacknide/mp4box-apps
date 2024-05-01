@@ -1,6 +1,9 @@
 export class Mp4boxPlayer {
     constructor(videoElement: any, initialDownloadConfig: any, downloaderInstance: any);
     config: any;
+    videoFps: number;
+    desiredChunkSize: number;
+    SEGMENT_DURATION_SECS: number;
     video: any;
     downloader: any;
     autoplay: boolean;

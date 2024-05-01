@@ -711,29 +711,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ffmpeg/ffmpeg@npm:^0.12.10":
-  version: 0.12.10
-  resolution: "@ffmpeg/ffmpeg@npm:0.12.10"
-  dependencies:
-    "@ffmpeg/types": ^0.12.2
-  checksum: bca753806ce7547406c498773a276c3703df959fbd28ee1c41ba0b82c82e8c761bc738de0af545fcae9f92b8584d2dc1a96d459bf5380df8cf5293fd29e904f2
-  languageName: node
-  linkType: hard
-
-"@ffmpeg/types@npm:^0.12.2":
-  version: 0.12.2
-  resolution: "@ffmpeg/types@npm:0.12.2"
-  checksum: 2a80d42f9afe93db86c636a91f1477a796f628528eebe526673bf450221dc97fa2a773670c0979c52b6b287bd8b94fc508bbddbe40054a44df44aeed80c9c801
-  languageName: node
-  linkType: hard
-
-"@ffmpeg/util@npm:^0.12.1":
-  version: 0.12.1
-  resolution: "@ffmpeg/util@npm:0.12.1"
-  checksum: 6de17789a3cbe912fec2ae1e5c0b710fb68a0a668789311bce8967f8468b0dd64335b96144eea71800fa8729d27468e0d54e4c8ef9c7fc35a99590116d3074f9
-  languageName: node
-  linkType: hard
-
 "@gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -1094,8 +1071,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@knide/mp4box-player@workspace:lib/mp4box-player"
   dependencies:
-    "@ffmpeg/ffmpeg": ^0.12.10
-    "@ffmpeg/util": ^0.12.1
     "@knide/mp4box": 1.0.11
     concurrently: ^8.2.2
     nanoid: ^5.0.6
