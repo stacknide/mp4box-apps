@@ -4901,7 +4901,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.56.0, eslint@npm:^8.57.0":
+"eslint@npm:^8.56.0":
   version: 8.57.0
   resolution: "eslint@npm:8.57.0"
   dependencies:
@@ -9142,7 +9142,6 @@ __metadata:
   resolution: "mp4box-ts@workspace:lib/mp4box-ts"
   dependencies:
     blanket: ^1.2.3
-    eslint: ^8.57.0
     grunt: ^1.0.4
     grunt-bump: ^0.8.0
     grunt-cli: ^1.2.0

@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "name": "Root",
+      "path": "."
+    },
+    {
+      "name": "lib",
+      "path": "lib/mp4box-player"
+    },
+    {
+      "name": "demo app",
+      "path": "demo-player"
+    }
+  ],
+  "settings": {
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "explorer.expandSingleFolderWorkspaces": true
+  }
+}
