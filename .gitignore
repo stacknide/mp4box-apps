@@ -7,4 +7,4 @@ lib/server/src/static/video/*/*
 !lib/server/src/static/video/*/README.md
 !lib/server/src/static/video/mp4/airbnb.mp4
 
-.yarn
+**/.yarn/cache
